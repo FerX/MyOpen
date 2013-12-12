@@ -7,7 +7,7 @@
 # email: fernandofigaroli@gmail.com
 # mi trovi su Google+
 #
-# Licenza: GPL ???
+# Licenza: GPL 
 # Credits: Ho preso idee dal progetto pymyhome di Flavio Giovannangeli
 
 class MyOpen:
