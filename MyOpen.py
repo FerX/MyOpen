@@ -38,7 +38,7 @@ class MyOpen:
         self.server=server
         self.port=port
 
-    def connect(self,tipo="command"):
+    def connect(self,tipo=""):
         """self.connect([tipo]) 
                 effettua una connesione socket al gateway MyOpenWebNet
                 uso: self.connect() - connessione normale per inviare comandi
@@ -48,11 +48,16 @@ class MyOpen:
         self.S=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.S.connect((self.server,self.port))
         if tipo=="monitor":
-            self.send(self.MONITOR)
+            self.S.send(self.MONITOR)
         else:
-            self.send(self.COMMAND)
+            self.S.send(self.COMMAND)
+            a1=self.readcmd() #ritorna TRUE se ACK
+            a2=self.readcmd() #ritorna TRUE se ACK
+            if not a1==a2==self.ACK:
+                print "errore connessione... parte da sistemare con try: "
+
         #implementare errori
-        return 
+        return True 
         
     def close(self):
         """self.close()
@@ -61,46 +66,52 @@ class MyOpen:
         self.S.close()
         return
 
-    def send(self,cmd):
+    def sendcmd(self,cmd):
         """ self.send(str)
                 invia il comando "str" al gateway e aspetta la risposta
                 str deve contenere un codice OpenWebNet valido (es. *1*1*77##)
         """        
         R=True
+
+        self.connect()
         try:
-            by=self.S.send(cmd)
+            self.S.send(cmd)
         except:    
             R=False
-        n=0
-        mycmd=""
-        #compongo la risposta elimiando gli ACK
-        #il terzo ACK senza la fine del messaggio
-        while True:
-            R=self.read()
-            print X,n
-            if R==self.ACK: 
-                n+=1
-                if n==3: 
-                    break
-            else:
-                mycmd=mycmd+R
-        return mycmd 
+        #compongo la risposta
 
-    def read(self):
-        """ self.read()
+        #segnali di fine msg:
+        #ACK =tutto bene, nulla da dire
+        #NACK = segnale inviato, ma non andato a buon fine
+        #risposta ACK = segnale inviato, risposta alla domanda, chiusura risposta
+        mycmd=[]
+        num_nack=0
+        while True:
+            R=self.readcmd()
+            if R==self.ACK: 
+                if mycmd==[]: mycmd=True
+                self.close()
+                return mycmd
+            elif R==self.NACK:
+                self.close()
+                return False
+            else:
+                mycmd.append(R) 
+
+    def readcmd(self):
+        """ self.readcmd()
                 legge dalla connessione socket una riga di messaggio
-                per leggere più testo metterlo in ciclo loop
+                per leggere piu testo metterlo in ciclo loop
         """
         #implementare errori
-        #ricevo un carattere alla volta, ritorno quando ##
-        n=0
+        #ricevo un carattere alla volta
         mycmd=""
         while True:
             R=self.S.recv(1)
             mycmd=mycmd+R
-            if R=="#": n+=1
-            if n==2: break 
-        return mycmd
+            #se fine comando "##" esco
+            if mycmd[-2:]=="##":   
+                return mycmd
 
 
 
