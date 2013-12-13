@@ -16,10 +16,6 @@ class MyOpen:
     metodi:
         connect() - apre la connessione
         close() - chiude la connessione
-        setLight() - imposta una luce
-        readLight() - legge lo stato
-        ...
-        ...
         ...da sviluppare ...
     
     """
@@ -42,12 +38,16 @@ class MyOpen:
         self.server=server
         self.port=port
 
-    def connect(self,monitor=0):
+    def connect(self,tipo="command"):
+        """self.connect([tipo]) 
+                effettua una connesione socket al gateway MyOpenWebNet
+                uso: self.connect() - connessione normale per inviare comandi
+                     self.connect("monitor") - connessione monitor, legge tutto lo stream
+        """             
         import socket
-        self.monitor=monitor
         self.S=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.S.connect((self.server,self.port))
-        if self.monitor:
+        if tipo=="monitor":
             self.send(self.MONITOR)
         else:
             self.send(self.COMMAND)
@@ -55,23 +55,52 @@ class MyOpen:
         return 
         
     def close(self):
+        """self.close()
+                chiude la connessione socket al gateway
+        """        
         self.S.close()
         return
 
     def send(self,cmd):
-        #implementare errori
-        return self.S.send(cmd)
+        """ self.send(str)
+                invia il comando "str" al gateway e aspetta la risposta
+                str deve contenere un codice OpenWebNet valido (es. *1*1*77##)
+        """        
+        R=True
+        try:
+            by=self.S.send(cmd)
+        except:    
+            R=False
+        n=0
+        mycmd=""
+        #compongo la risposta elimiando gli ACK
+        #il terzo ACK senza la fine del messaggio
+        while True:
+            R=self.read()
+            print X,n
+            if R==self.ACK: 
+                n+=1
+                if n==3: 
+                    break
+            else:
+                mycmd=mycmd+R
+        return mycmd 
 
     def read(self):
+        """ self.read()
+                legge dalla connessione socket una riga di messaggio
+                per leggere più testo metterlo in ciclo loop
+        """
         #implementare errori
-#        self.S.settimeout(1)
-        R=self.S.recv(150)
-        #suddivido in base a ##
-        R=R.replace(self.ACK,"ACK##")
-        R=R.replace(self.NACK,"NACK##")
-        R=R.split("##")
-
-        return R
+        #ricevo un carattere alla volta, ritorno quando ##
+        n=0
+        mycmd=""
+        while True:
+            R=self.S.recv(1)
+            mycmd=mycmd+R
+            if R=="#": n+=1
+            if n==2: break 
+        return mycmd
 
 
 
