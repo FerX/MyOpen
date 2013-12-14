@@ -26,28 +26,31 @@ class MyOpen:
     MONITOR="*99*1##" 
     COMMAND="*99*0##" 
 
-    def __init__(self,gateway,port):
-        """definisco variabili principali per le connessioni al server"""
+    def __init__(self,gateway,port,tipo=""):
+        """definisco variabili principali per le connessioni al gateway
+        se richiesto entro in modalita monitor"""
         self.gateway=gateway
         self.port=port
+        self.tipoconnessione=tipo
+        if tipo=="monitor":
+            self.connect()
 
-    def connect(self,tipo=""):
+    def connect(self):
         """self.connect([tipo]) 
                 effettua una connesione socket al gateway MyOpenWebNet
                 uso: self.connect() - connessione normale per inviare comandi
-                     self.connect("monitor") - connessione monitor, legge tutto lo stream
         """             
         import socket
         try:
-            self.S=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-            self.S.connect((self.gateway,self.port))
+            self.Soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            self.Soc.connect((self.gateway,self.port))
         except:
             self.errore("Errore di connessione al gateway, verifica IP, porta e se accesso concesso senza password")
         
-        if tipo=="monitor":
-            self.S.send(self.MONITOR)
+        if self.tipoconnessione=="monitor":
+            self.Soc.send(self.MONITOR)
         else:
-            self.S.send(self.COMMAND)
+            self.Soc.send(self.COMMAND)
         #il gateway deve rispondere ACK ACK
         a1=self.readcmd() 
         a2=self.readcmd()
@@ -59,7 +62,7 @@ class MyOpen:
         """self.close()
                 chiude la connessione socket al gateway
         """        
-        self.S.close()
+        self.Soc.close()
         return
 
     def sendcmd(self,cmd):
@@ -71,7 +74,7 @@ class MyOpen:
 
         self.connect()
         try:
-            self.S.send(cmd)
+            self.Soc.send(cmd)
         except:    
             errore("Non stato possibile inviare il comando al gateway")
 
@@ -104,7 +107,7 @@ class MyOpen:
         mycmd=""
         while True:
             try:
-                R=self.S.recv(1)
+                R=self.Soc.recv(1)
             except:
                 self.errore("non e stato possibile ricevere dal gateway")
             mycmd=mycmd+R

@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 from MyOpen import MyOpen
 from time import sleep
 
