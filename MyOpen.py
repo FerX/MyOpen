@@ -19,23 +19,16 @@ class MyOpen:
         ...da sviluppare ...
     
     """
-    #Classificazione dei messaggi OPEN
-    #ACK *#*1##
-    #NACK *#*0##
-    #NORMALE *CHI*COSA*DOVE##
-    #RICHIESTA STATO *#CHI*DOVE##
-    #RICHIESTA GRANDEZZA *#CHI*DOVE*GRANDEZZA##
-    #STRITTURA GRANDEZZA *#CHI*DOVE*#GRANDEZZA*VAL1*VAL2*VALN##
+    import sys
 
     ACK="*#*1##" #OK
     NACK="*#*0##" #ERROR
     MONITOR="*99*1##" 
     COMMAND="*99*0##" 
 
-
-    def __init__(self,server,port):
+    def __init__(self,gateway,port):
         """definisco variabili principali per le connessioni al server"""
-        self.server=server
+        self.gateway=gateway
         self.port=port
 
     def connect(self,tipo=""):
@@ -45,18 +38,21 @@ class MyOpen:
                      self.connect("monitor") - connessione monitor, legge tutto lo stream
         """             
         import socket
-        self.S=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.S.connect((self.server,self.port))
+        try:
+            self.S=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            self.S.connect((self.gateway,self.port))
+        except:
+            self.errore("Errore di connessione al gateway, verifica IP, porta e se accesso concesso senza password")
+        
         if tipo=="monitor":
             self.S.send(self.MONITOR)
         else:
             self.S.send(self.COMMAND)
-            a1=self.readcmd() #ritorna TRUE se ACK
-            a2=self.readcmd() #ritorna TRUE se ACK
-            if not a1==a2==self.ACK:
-                print "errore connessione... parte da sistemare con try: "
-
-        #implementare errori
+        #il gateway deve rispondere ACK ACK
+        a1=self.readcmd() 
+        a2=self.readcmd()
+        if not a1==a2==self.ACK:
+            errore("errore connessione... il gateway ha rispost: %s %s " % (a1,a2))
         return True 
         
     def close(self):
@@ -77,8 +73,7 @@ class MyOpen:
         try:
             self.S.send(cmd)
         except:    
-            R=False
-        #compongo la risposta
+            errore("Non stato possibile inviare il comando al gateway")
 
         #segnali di fine msg:
         #ACK =tutto bene, nulla da dire
@@ -88,6 +83,7 @@ class MyOpen:
         num_nack=0
         while True:
             R=self.readcmd()
+
             if R==self.ACK: 
                 if mycmd==[]: mycmd=True
                 self.close()
@@ -107,45 +103,19 @@ class MyOpen:
         #ricevo un carattere alla volta
         mycmd=""
         while True:
-            R=self.S.recv(1)
+            try:
+                R=self.S.recv(1)
+            except:
+                self.errore("non e stato possibile ricevere dal gateway")
             mycmd=mycmd+R
             #se fine comando "##" esco
             if mycmd[-2:]=="##":   
                 return mycmd
 
 
+    def errore(self,msg):
+        print self
+        self.close()
+        self.sys.exit() 
 
 
-
-###############
-### TESTING
-###############
-#import time
-#casa=MyOpen("192.168.1.7",20000)
-#casa.connect()
-#print "connesso... leggo cosa risponde"
-#print casa.read()
-#
-#print "accendo luce scala"
-#casa.send("*1*0*77##")
-#print "interrogo stato luce scala"
-#casa.send("*#1*77##")
-#print "leggo.."
-#print casa.read()
-#
-##print "attendo 1 secondo"
-##time.sleep(1)
-##print "spengo luce scala"
-##print casa.send("*1*0*77##")
-##print "interrogo stato luce scala"
-##print casa.send("*#1*77##")
-##print casa.read()
-##
-##time.sleep(1)
-#print "vado in modalita monitor.."
-#casa.close()
-#casa.connect(monitor=1)
-#while True:
-#    print casa.read()
-#
-#
