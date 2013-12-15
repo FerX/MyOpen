@@ -67,12 +67,9 @@ class MyOpenGateway:
         """self.close()
                 chiude la connessione socket al gateway se aperta
         """        
-<<<<<<< HEAD
         if self.S: 
             self.S.close()
-=======
         self.Soc.close()
->>>>>>> 3dbdda0d6f3da4128d097cac8257b9eb1aa84351
         return
 
     def sendcmd(self,cmd):
@@ -150,9 +147,21 @@ class MyOpenDB:
             self.errore(e.args[0])
 
         #se nuovo file genero la-le tabelle necessarie
+        if numrecord=0 ???
+            
     
-    def 
+    def addrow(self, cmdopen, note):
+        #oltre al cmdopen e eventuale note inserisco ID progressivo e TIME in secondi dal 1970
+    
+    def delrow(self, del_id):
+        #cancello il record con del_id
+    
+    def readrow(self, read_id):
+        #leggo una determinata riga
 
+    def lastrow(self, CHI ??)
+
+            
     def close(self):
         if self.connect:
             self.connect.close()
