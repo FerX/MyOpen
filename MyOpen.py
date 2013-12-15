@@ -146,21 +146,24 @@ class MyOpenDB:
         except self.sqlite3.Error, e:
             self.errore(e.args[0])
 
-        #se nuovo file genero la-le tabelle necessarie
-        if numrecord=0 ???
+        #Verifico le tabelle presenti nel database
+        cur = self.connect.cursor()
+        cur.execute("SELECT name from sqlite_master WHERE type='table'")
+        lista_tabelle=cur.fetchall()
             
     
     def addrow(self, cmdopen, note):
         #oltre al cmdopen e eventuale note inserisco ID progressivo e TIME in secondi dal 1970
-    
+        pass
+
     def delrow(self, del_id):
         #cancello il record con del_id
-    
+        pass
     def readrow(self, read_id):
         #leggo una determinata riga
-
-    def lastrow(self, CHI ??)
-
+        pass
+    def lastrow(self, CHI ):
+        pass
             
     def close(self):
         if self.connect:
