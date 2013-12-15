@@ -1,7 +1,7 @@
-from MyOpen import MyOpen
+import MyOpen
 from time import sleep
 
-X=MyOpen("192.168.1.13",20000)
+X=MyOpen.MyOpenGateway("192.168.1.13",20000)
 print "accendo la luce"
 print X.sendcmd("*1*1*24##")
 sleep(1)

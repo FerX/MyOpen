@@ -7,16 +7,21 @@
 # email: fernandofigaroli@gmail.com
 # mi trovi su Google+
 # Licenza: GPL 
-# Credits: Ho preso idee dal progetto pymyhome di Flavio Giovannangeli
+"""
+Inserire qui una descrizione generica di tutta la libreria MyOpen
 
-class MyOpen:
+class MyOpenGateway
+    si connette al gateway in modalita normale o monitor
+    invia e riceve comandi
+
+class MyOpenDB
+    gestisce il database sqlite in cui tiene memorizzato il log
+"""
+
+
+class MyOpenGateway:
     """
     classe principale per la connessione al gateway
-    
-    metodi:
-        connect() - apre la connessione
-        close() - chiude la connessione
-        ...da sviluppare ...
     
     """
     import sys
@@ -57,9 +62,10 @@ class MyOpen:
         
     def close(self):
         """self.close()
-                chiude la connessione socket al gateway
+                chiude la connessione socket al gateway se aperta
         """        
-        self.S.close()
+        if self.S: 
+            self.S.close()
         return
 
     def sendcmd(self,cmd):
@@ -114,8 +120,38 @@ class MyOpen:
 
 
     def errore(self,msg):
-        print self
         self.close()
-        self.sys.exit() 
+        self.sys.exit(msg) 
+
+
+class MyOpenDB:
+    """
+    Si occupa di gestire il database sqlite con memorizzato il logging dei comandi
+    """
+    import sqlite3
+
+    def __init__(self,nomedb):
+        """
+        definisce le variabili generali del database e mi connetto
+        """
+        self.nomedb=nomedb
+        self.connect=None
+
+        try:
+            self.connect=self.sqlite3.connect(self.nomedb)
+        except self.sqlite3.Error, e:
+            self.errore(e.args[0])
+
+        #se nuovo file genero la-le tabelle necessarie
+    
+    def 
+
+    def close(self):
+        if self.connect:
+            self.connect.close()
+
+    def errore(self,msg):
+        self.close()
+        self.sys.exit(msg) 
 
 
