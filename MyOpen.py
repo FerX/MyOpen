@@ -195,6 +195,7 @@ class Parser:
         self.who_flag=False
         self.what=""
         self.what_human=""
+        self.what_flag=False
         self.where=""
         self.where_human=""
         
@@ -203,9 +204,13 @@ class Parser:
     
     def __readHuman(self,fileconfig,section,key):
         fileconfig=self.LANG+"/"+fileconfig+".diz"
-        human=self.ConfigParser.RawConfigParser()
-        human.read(fileconfig)
-        return human.get(section, key)
+        try:
+            config=self.ConfigParser.RawConfigParser()
+            config.read(fileconfig)
+            human=config.get(section, key)
+        except:
+            human="Not Found"
+        return human
 
     def __parsing(self):
         self.__who()
@@ -226,7 +231,15 @@ class Parser:
     def __what(self):
         if not self.who_flag:
             self.what=self.COD.split('*')[2]
-            self.what_human=self.__readHuman("WHAT",self.who,self.what)
+            if self.what.find("#")>0:
+                self.what_flag=True
+                if self.who=="0":
+                    #scenari
+                    self.what_human=self.__readHuman("WHAT",self.who,self.what[0:2])+" "
+                    self.what_human+=self.__readHuman("WHAT",self.who,self.what[-2:])
+            else:
+                    self.what_human=self.__readHuman("WHAT",self.who,self.what)
+
         else:
             #se ce # in who vuol dire che cosa e definito in modo diverso
             if self.who=="1":
@@ -244,10 +257,7 @@ class Parser:
                     self.what_human="temporizzazione"
     
     def __where(self):
-        if self.who=="0":
-            return
         if not self.who_flag:
-            print self.who
             self.where=self.COD.split('*')[2]
             self.where_human=self.__readHuman("WHERE",self.who,self.where)
         else:
