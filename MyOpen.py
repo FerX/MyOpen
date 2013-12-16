@@ -60,16 +60,15 @@ class Gateway:
         a1=self.readcmd() 
         a2=self.readcmd()
         if not a1==a2==self.ACK:
-            errore("errore connessione... il gateway ha rispost: %s %s " % (a1,a2))
+            self.errore("errore connessione... il gateway ha rispost: %s %s " % (a1,a2))
         return True 
         
     def close(self):
         """self.close()
                 chiude la connessione socket al gateway se aperta
         """        
-        if self.S: 
-            self.S.close()
-        self.Soc.close()
+        if self.Soc: 
+            self.Soc.close()
         return
 
     def sendcmd(self,cmd):
@@ -190,7 +189,15 @@ class Parser:
     def __init__(self,cod,lang="IT"):
         self.LANG=lang
         self.COD=cod
-        #testare se codice valido regex 
+       
+        self.who=""
+        self.who_human=""
+        self.who_flag=False
+        self.what=""
+        self.what_human=""
+        self.where=""
+        self.where_human=""
+        
         
         self.__parsing()
     
@@ -203,10 +210,10 @@ class Parser:
     def __parsing(self):
         self.__who()
         self.__what()
-
+        self.__where()
+        
     def __who(self):
         self.who=self.COD.split('*')[1]
-        self.who_flag=False
 
         if self.who[0]=="#":
             self.who=self.who[1:]
@@ -235,7 +242,20 @@ class Parser:
                     # es. *#1*dove*2*ore*min*sec##
                     self.what="Temporizzazione"
                     self.what_human="temporizzazione"
-            
+    
+    def __where(self):
+        if self.who=="0":
+            return
+        if not self.who_flag:
+            print self.who
+            self.where=self.COD.split('*')[2]
+            self.where_human=self.__readHuman("WHERE",self.who,self.where)
+        else:
+            self.where=self.COD.split('*')[3]
+            self.where_human=""
+
+
+
     def __str_(self):
         #format output
         pass

@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
-from MyOpen import MyOpen
+import MyOpen
 from time import time
-S=MyOpen("192.168.1.13",20000,"monitor")
+S=MyOpen.Gateway("192.168.1.7",20000,"monitor")
 
 n=1
 print "Litening:..."

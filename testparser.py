@@ -12,6 +12,8 @@ a.append(MyOpen.Parser("*1*1*23##"))
 
 a.append(MyOpen.Parser("*#1*2*1*23##"))
 
+a.append(MyOpen.Parser("*2*1*23##"))
+
 for x in a:
     print "Codice: "+x.COD
     print "Who: "+x.who
@@ -19,5 +21,7 @@ for x in a:
     print "Flag Who: "+str(x.who_flag)
     print "What: "+x.what
     print "What Human: "+x.what_human
+    print "Where: "+x.where
+    print "Where Human: "+x.where_human
     print "#"*30
 
