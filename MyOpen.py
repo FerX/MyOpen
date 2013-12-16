@@ -10,16 +10,16 @@
 """
 Inserire qui una descrizione generica di tutta la libreria MyOpen
 
-class MyOpenGateway
+class Gateway
     si connette al gateway in modalita normale o monitor
     invia e riceve comandi
 
-class MyOpenDB
+class DB
     gestisce il database sqlite in cui tiene memorizzato il log
 """
 
 
-class MyOpenGateway:
+class Gateway:
     """
     classe principale per la connessione al gateway
     
@@ -128,7 +128,7 @@ class MyOpenGateway:
         self.sys.exit(msg) 
 
 
-class MyOpenDB:
+class Db:
     """
     Si occupa di gestire il database sqlite con memorizzato il logging dei comandi
     """
@@ -150,7 +150,9 @@ class MyOpenDB:
         cur = self.connect.cursor()
         cur.execute("SELECT name from sqlite_master WHERE type='table'")
         lista_tabelle=cur.fetchall()
-            
+        print "lista tabelle:"
+        print lista_tabelle 
+
     
     def addrow(self, cmdopen, note):
         #oltre al cmdopen e eventuale note inserisco ID progressivo e TIME in secondi dal 1970
@@ -173,4 +175,68 @@ class MyOpenDB:
         self.close()
         self.sys.exit(msg) 
 
+
+class Parser:
+    """
+    Fa il parsing dei codici my-open
+    uso:
+    pars=MyOpen.Parser(codice_open)
+    pars --> object
+    pars.who
+    etc---    
+    """
+    import ConfigParser
+    
+    def __init__(self,cod,lang="IT"):
+        self.LANG=lang
+        self.COD=cod
+        #testare se codice valido regex 
+        
+        self.__parsing()
+    
+    def __readHuman(self,fileconfig,section,key):
+        fileconfig=self.LANG+"/"+fileconfig+".diz"
+        human=self.ConfigParser.RawConfigParser()
+        human.read(fileconfig)
+        return human.get(section, key)
+
+    def __parsing(self):
+        self.__who()
+        self.__what()
+
+    def __who(self):
+        self.who=self.COD.split('*')[1]
+        self.who_flag=False
+
+        if self.who[0]=="#":
+            self.who=self.who[1:]
+            self.who_flag=True
+        
+        #cercare who in archivio
+        self.who_human=self.__readHuman("WHO","WHO",self.who)
+        return 
+
+    def __what(self):
+        if not self.who_flag:
+            self.what=self.COD.split('*')[2]
+            self.what_human=self.__readHuman("WHAT",self.who,self.what)
+        else:
+            #se ce # in who vuol dire che cosa e definito in modo diverso
+            if self.who=="1":
+                #se illuminazione
+                tipo=self.COD.split('*')[2]
+                if tipo=="1":
+                    #variazione intensita luminosa
+                    # es. *#1*dove*1*livello*velocita##
+                    self.what="Variazione intensita luminosa"
+                    self.what_human="Variazione intensita"
+                if tipo=="2":
+                    #temporizzazione
+                    # es. *#1*dove*2*ore*min*sec##
+                    self.what="Temporizzazione"
+                    self.what_human="temporizzazione"
+            
+    def __str_(self):
+        #format output
+        pass
 
