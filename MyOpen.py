@@ -185,10 +185,10 @@ class Parser:
     etc---    
     """
     import ConfigParser
-    
-    def __init__(self,cod,lang="IT"):
+    import re
+
+    def __init__(self,lang="IT"):
         self.LANG=lang
-        self.COD=cod
        
         self.who=""
         self.who_human=""
@@ -199,9 +199,10 @@ class Parser:
         self.where=""
         self.where_human=""
         
-        
-        self.__parsing()
-    
+        #load lists regex
+        import regex
+        self.regex={"0":regex.W0}
+
     def __readHuman(self,fileconfig,section,key):
         fileconfig=self.LANG+"/"+fileconfig+".diz"
         try:
@@ -212,10 +213,11 @@ class Parser:
             human="Not Found"
         return human
 
-    def __parsing(self):
+    def parsing(self,cod):
+        self.COD=cod
+        
         self.__who()
-        self.__what()
-        self.__where()
+        self.__regex()
         
     def __who(self):
         self.who=self.COD.split('*')[1]
@@ -228,41 +230,17 @@ class Parser:
         self.who_human=self.__readHuman("WHO","WHO",self.who)
         return 
 
-    def __what(self):
-        if not self.who_flag:
-            self.what=self.COD.split('*')[2]
-            if self.what.find("#")>0:
-                self.what_flag=True
-                if self.who=="0":
-                    #scenari
-                    self.what_human=self.__readHuman("WHAT",self.who,self.what[0:2])+" "
-                    self.what_human+=self.__readHuman("WHAT",self.who,self.what[-2:])
-            else:
-                    self.what_human=self.__readHuman("WHAT",self.who,self.what)
-
-        else:
-            #se ce # in who vuol dire che cosa e definito in modo diverso
-            if self.who=="1":
-                #se illuminazione
-                tipo=self.COD.split('*')[2]
-                if tipo=="1":
-                    #variazione intensita luminosa
-                    # es. *#1*dove*1*livello*velocita##
-                    self.what="Variazione intensita luminosa"
-                    self.what_human="Variazione intensita"
-                if tipo=="2":
-                    #temporizzazione
-                    # es. *#1*dove*2*ore*min*sec##
-                    self.what="Temporizzazione"
-                    self.what_human="temporizzazione"
-    
-    def __where(self):
-        if not self.who_flag:
-            self.where=self.COD.split('*')[2]
-            self.where_human=self.__readHuman("WHERE",self.who,self.where)
-        else:
-            self.where=self.COD.split('*')[3]
-            self.where_human=""
+    def __regex(self):
+        #usando who vado a recuperare tutte le regex che lo riguardano
+        #converto i * in X e tolgo gli ultimi due ##
+        tempCOD=self.COD.replace("*","X").rstrip("##")
+        for reg in self.regex[self.who]:
+            pars=self.re.compile(reg)
+            res=pars.match(tempCOD)
+            if res:
+                resdict=res.groupdict()
+                for x in resdict(keys):
+                    print resdict(x)
 
 
 

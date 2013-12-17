@@ -14,17 +14,17 @@ scenario.append("*0*41#12*22##")
 #cancella tutti gli scenari
 scenario.append("*0*42*22##")
 
-
+cpars=MyOpen.Parser()
 for a in scenario:
-    x=MyOpen.Parser(a)
-    print "Codice: "+x.COD
-    print "Who: "+x.who,
-    print " Who Human: "+x.who_human,
-    print " Flag Who: "+str(x.who_flag)
-    print "What: "+x.what,
-    print " What Human: "+x.what_human,
-    print " What flag: "+str(x.what_flag)
-    print "Where: "+x.where,
-    print " Where Human: "+x.where_human
-    print "#"*30
+    x=cpars.parsing(a)
+    print "Codice: "+a
+    #print "Who: "+x.who,
+    #print " Who Human: "+x.who_human,
+    #print " Flag Who: "+str(x.who_flag)
+    #print "What: "+x.what,
+    #print " What Human: "+x.what_human,
+    #print " What flag: "+str(x.what_flag)
+    #print "Where: "+x.where,
+    #print " Where Human: "+x.where_human
+    #print "#"*30
 
