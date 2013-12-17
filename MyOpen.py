@@ -201,7 +201,7 @@ class Parser:
         
         #load lists regex
         import regex
-        self.regex={"0":regex.W0}
+        self.regex={"0":regex.W0,"1":regex.W1}
 
     def __readHuman(self,fileconfig,section,key):
         fileconfig=self.LANG+"/"+fileconfig+".diz"
@@ -234,14 +234,21 @@ class Parser:
         #usando who vado a recuperare tutte le regex che lo riguardano
         #converto i * in X e tolgo gli ultimi due ##
         tempCOD=self.COD.replace("*","X").rstrip("##")
+        #corrispondenza variabili
+        dvar={"A":"WHAT","B":"WHERE"}
         for reg in self.regex[self.who]:
-            pars=self.re.compile(reg)
+            pars=self.re.compile(reg[0])
             res=pars.match(tempCOD)
             if res:
                 resdict=res.groupdict()
-                for x in resdict(keys):
-                    print resdict(x)
-
+                print resdict
+                for chiave in resdict.keys():
+                    if chiave[-1]=="H":
+                        resdict[chiave]=self.__readHuman(dvar[chiave[0]],self.who,resdict[chiave])
+                    print resdict[chiave]
+                print reg[1].format(**resdict)
+                 
+            break
 
 
     def __str_(self):
