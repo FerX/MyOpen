@@ -6,7 +6,8 @@ S=MyOpen.Gateway("192.168.1.7",20000,"monitor")
 
 n=1
 print "Litening:..."
+par=MyOpen.Parser()
 while True:
-    print n, S.readcmd()
-    n+=1
-
+    x=S.readcmd()
+    print x,
+    print par.parsing(x)

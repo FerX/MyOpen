@@ -201,7 +201,8 @@ class Parser:
         
         #load lists regex
         import regex
-        self.regex={"0":regex.W0,"1":regex.W1}
+        #assign lists regex to dictionary
+        self.regex={"0":regex.W0,"1":regex.W1,"2":regex.W2,"3":regex.W3,"4":regex.W4,"5":regex.W5,"7":regex.W7,"9":regex.W9,"13":regex.W13,"15":regex.W15,"16":regex.W16,"17":regex.W17,"1001":regex.W1001,"1004":regex.W1004,"1013":regex.W1013}
 
     def __readHuman(self,fileconfig,section,key):
         fileconfig=self.LANG+"/"+fileconfig+".diz"
@@ -217,7 +218,7 @@ class Parser:
         self.COD=cod
         
         self.__who()
-        self.__regex()
+        return self.__regex()
         
     def __who(self):
         self.who=self.COD.split('*')[1]
@@ -237,18 +238,17 @@ class Parser:
         #corrispondenza variabili
         dvar={"A":"WHAT","B":"WHERE"}
         for reg in self.regex[self.who]:
+            #print reg[0]
             pars=self.re.compile(reg[0])
-            res=pars.match(tempCOD)
-            if res:
-                resdict=res.groupdict()
-                print resdict
+            pars=pars.match(tempCOD)
+            if pars:
+                resdict=pars.groupdict()
+                resdicth=resdict
                 for chiave in resdict.keys():
                     if chiave[-1]=="H":
-                        resdict[chiave]=self.__readHuman(dvar[chiave[0]],self.who,resdict[chiave])
-                    print resdict[chiave]
-                print reg[1].format(**resdict)
-                 
-            break
+                        #riscrivere piu leggibile la seguente righa
+                        resdicth[chiave]=self.__readHuman(dvar[chiave[0]],self.who,resdict[chiave].replace("#","G"))
+                return reg[1].format(**resdicth)
 
 
     def __str_(self):

@@ -12,19 +12,42 @@ scenario.append("*0*40#12*22##")
 #fine programmazione scenario
 scenario.append("*0*41#12*22##")
 #cancella tutti gli scenari
-scenario.append("*0*42*22##")
+scenario.append("*0*42#*22##")
+scenario.append("*0*43*22##")
+scenario.append("*0*44*22##")
+scenario.append("*0*45*22##")
+scenario.append("*0*46*22##")
 
 cpars=MyOpen.Parser()
+print "Test scenario"
 for a in scenario:
+    print "Codice: "+a,
     x=cpars.parsing(a)
-    print "Codice: "+a
-    #print "Who: "+x.who,
-    #print " Who Human: "+x.who_human,
-    #print " Flag Who: "+str(x.who_flag)
-    #print "What: "+x.what,
-    #print " What Human: "+x.what_human,
-    #print " What flag: "+str(x.what_flag)
-    #print "Where: "+x.where,
-    #print " Where Human: "+x.where_human
-    #print "#"*30
 
+
+
+luci=[]
+luci.append("*1*1*12##")
+luci.append("*1*1*2##")
+luci.append("*1*0*12##")
+luci.append("*#1*3*1*50*120##")
+luci.append("*1*8*13##")
+luci.append("*1*23*13##")
+luci.append("*#1*12*2*1*12*2##")
+cpars=MyOpen.Parser()
+print "Test Luci"
+for a in luci:
+    print "Codice: "+a,
+    x=cpars.parsing(a)
+
+
+auto=[]
+auto.append("*2*0*12##")
+auto.append("*2*1*2##")
+auto.append("*2*2*#1##")
+cpars=MyOpen.Parser()
+print "Test auto"
+for a in auto:
+    print "Codice: "+a,
+    x=cpars.parsing(a)
+    
