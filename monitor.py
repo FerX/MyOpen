@@ -22,9 +22,12 @@ print "In ascolto:..."
 parser=MyOpen.Parser()
 while True:
     x=gateway.readcmd()
+    if parser.skip(x):
+        print "da saltare",x
+        continue
     par=parser.parsing(x)
     if screen:
         print x,par
     if writedb:
-        lastid=database.addrow(str(time.time()),parser.who,parser.where,x)
+        lastid=database.addrow(parser.who,parser.where,x)
         leggi=database.lastrow(parser.who,parser.where)

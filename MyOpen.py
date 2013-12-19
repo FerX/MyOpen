@@ -7,22 +7,57 @@
 # email: fernandofigaroli@gmail.com
 # mi trovi su Google+
 # Licenza: GPL 
+# le donazioni sono ben accette PayPal fernando@figaroli.it
 """
-Inserire qui una descrizione generica di tutta la libreria MyOpen
+La libreria MyOpen e' composta da una serie di classi ad oggetti
+per interagire con un impianto domotico Bticino-Legrant che utilizza
+il codice OpenWebNet per comunicare con i vari dispositivi.
 
 class Gateway
-    si connette al gateway in modalita normale o monitor
-    invia e riceve comandi
+    gestisce la connessione con il gataway per l'invio di comandi
+    e l'ascolto in modalita monitor
 
-class DB
+class Db
     gestisce il database sqlite in cui tiene memorizzato il log
-"""
 
+class Parser
+    si occupa di riconoscere il codice OpenWebNet e renderlo
+    piu' umano alla vista della persona
+
+class Robot
+    si occupa di gestire scenari semplici o super-complessi
+    
+class Notice
+    si occupa di notificare via email, sms o altro un particolare messaggio.
+    in futuro puo gestire anche la ricezione di comandi via sms o email.
+
+il file config.cfg contiene le configurazioni di base della libreria
+nella cartella config sono contenute le configurazioni personalizzabili
+in base al proprio gusto e lingua.
+
+###############################################################
+# Autore: Fernando Figaroli - FerX
+# email: fernandofigaroli@gmail.com
+# mi trovi su Google+
+# Licenza: GPL 
+# le donazioni sono ben accette PayPal fernando@figaroli.it
+###############################################################
+"""
 
 class Gateway:
     """
-    classe principale per la connessione al gateway
+    Gestisce la connessione con il gataway per l'invio di comandi
+    e l'ascolto in modalita' monitor
+    uso:
+    gate=MyOpen.Gateway(IP,PORT)    #crea connessione al gateway
+    gate.sendcmd(CodiceOpenWebNet)  #invia comando e ritorna risposta
+    gate.readcmd()                  #legge dal bus 
+    gate.close()                    #chiude connessione
     
+    gate=MyOpen.Gateway(IP,PORT,"monitor") #connessione in monitor
+    es. stampare a monitor tutto il bus
+    while True:
+        print gate.readcmd()
     """
     import sys
 
@@ -38,19 +73,18 @@ class Gateway:
         self.port=port
         self.tipoconnessione=tipo
         if tipo=="monitor":
-            self.connect()
+            self.__connect()
 
-    def connect(self):
-        """self.connect([tipo]) 
+    def __connect(self):
+        """self.__connect() 
                 effettua una connesione socket al gateway MyOpenWebNet
-                uso: self.connect() - connessione normale per inviare comandi
         """             
         import socket
         try:
             self.Soc=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
             self.Soc.connect((self.gateway,self.port))
         except:
-            self.errore("Errore di connessione al gateway, verifica IP, porta e se accesso concesso senza password")
+            self.__errore("Errore di connessione al gateway, verifica IP, porta e se accesso concesso senza password")
         
         if self.tipoconnessione=="monitor":
             self.Soc.send(self.MONITOR)
@@ -60,7 +94,7 @@ class Gateway:
         a1=self.readcmd() 
         a2=self.readcmd()
         if not a1==a2==self.ACK:
-            self.errore("errore connessione... il gateway ha rispost: %s %s " % (a1,a2))
+            self.__errore("errore connessione... il gateway ha rispost: %s %s " % (a1,a2))
         return True 
         
     def close(self):
@@ -78,11 +112,11 @@ class Gateway:
         """        
         R=True
 
-        self.connect()
+        self.__connect()
         try:
             self.Soc.send(cmd)
         except:    
-            errore("Non stato possibile inviare il comando al gateway")
+            self.__errore("Non stato possibile inviare il comando al gateway")
 
         #segnali di fine msg:
         #ACK =tutto bene, nulla da dire
@@ -115,35 +149,70 @@ class Gateway:
             try:
                 R=self.Soc.recv(1)
             except:
-                self.errore("non e stato possibile ricevere dal gateway")
+                self.__errore("non e stato possibile ricevere dal gateway")
             mycmd=mycmd+R
             #se fine comando "##" esco
             if mycmd[-2:]=="##":   
                 return mycmd
 
 
-    def errore(self,msg):
+    def __errore(self,msg):
         self.close()
         self.sys.exit(msg) 
+
+
+
+
 
 
 class Db:
     """
     Si occupa di gestire il database sqlite con memorizzato il logging dei comandi
+    uso:
+    database=MyOpen.Db(nomedb)
+        connessione al db sqlite, riceve come argomento il nome del file database
+        se non esiste lo crea e genera la tabella log
+
+    database.addrow(who,where,codice)
+        aggiunta di una riga, ritorna ID nuovo record inserito 
+            who=chi
+            where=dove
+            codice=codice OpenWebNet (es. *1*1*77##)
+        
+    database.delrow(ID)
+        cancella riga
+
+    database.readrow(ID)
+        legge una riga
+        ritorna un dizionario con tutti i campi:
+        ID=codice univoco
+        TIME=secondi dal 1970
+        WHO=chi
+        WHERE=dove
+        COD=codice OpenWebNet
+
+    database.lastrow(who,where)
+        ricerca nel database l'ultimo comando 
+        che riguarda chi e dove specificati.
+        serve principalmente per capire se 
+        ha cambiato lo stato o no
+        ritorna un dizionaro come in readnow()
+
+    database.close()
+        chiude la connessione con il db
     """
+    
     import sqlite3
+    import time
 
     def __init__(self,nomedb):
-        """
-        definisce le variabili generali del database e mi connetto
-        """
         self.nomedb=nomedb
         self.connect=None
 
         try:
             self.connect=self.sqlite3.connect(self.nomedb)
         except self.sqlite3.Error, e:
-            self.errore(e.args[0])
+            self.__errore(e.args[0])
 
         #Verifico se la tabella log e presente nel database
         self.cursor = self.connect.cursor()
@@ -159,9 +228,10 @@ class Db:
                 "(ID INTEGER PRIMARY KEY, TIME TEXT, WHO TEXT, WHE TEXT, COD TEXT)")
         self.connect.commit()
 
-    def addrow(self, time, who, whe, cod):
+    def addrow(self, who, whe, cod):
         #aggiungo record
-        sql="INSERT into log (time,who,whe,cod) values ('"+time+"','"+who+"','"+whe+"','"+cod+"')"
+        tempo=str(self.time.time())
+        sql="INSERT into log (time,who,whe,cod) values ('"+tempo+"','"+who+"','"+whe+"','"+cod+"')"
         self.cursor.execute(sql)
         self.connect.commit()
         #torna il nuovo id
@@ -191,10 +261,10 @@ class Db:
         return dictres 
 
     def close(self):
-        if self.connect:
-            self.connect.close()
+        if self.__connect:
+            self.__connect.close()
 
-    def errore(self,msg):
+    def __errore(self,msg):
         self.close()
         self.sys.exit(msg) 
 
@@ -242,7 +312,6 @@ class Parser:
 
     def parsing(self,cod):
         self.COD=cod
-        
         self.__who()
         return self.__regex()
         
@@ -257,6 +326,7 @@ class Parser:
         return 
 
     def __regex(self):
+        
         #usando who vado a recuperare tutte le regex che lo riguardano
         #converto i * in X e tolgo gli ultimi due ##
         tempCOD=self.COD.replace("*","X").rstrip("##")
@@ -287,7 +357,20 @@ class Parser:
                 return reg[1].format(**resdicth)
 
 
-    def __str_(self):
-        #format output
-        pass
+    def skip(self,cod):
+        """ determina se il codice rientra nella lista da saltare 
+        riceve come argomento un codice openwebnet
+        la lista da saltare e' memorizzata nel file skip.cfg
+        """
+      
+        skip=self.ConfigParser.RawConfigParser()
+        fileskip=self.config+"/"+"skip.cfg"
+        skip.read(fileskip)
+        skip=skip.items("skip")
+        
+        for x in skip:
+            #verifico se cod inizia con quando definito in skip.cfg
+            if cod.startswith(x[1]):
+                #trovato, quindi devo saltare
+                return True
 
