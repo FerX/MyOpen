@@ -225,7 +225,6 @@ class Parser:
 
         if self.who[0]=="#":
             self.who=self.who[1:]
-            self.who_flag=True
         
         #cercare who in archivio
         self.who_human=self.__readHuman("WHO","WHO",self.who)
@@ -236,18 +235,25 @@ class Parser:
         #converto i * in X e tolgo gli ultimi due ##
         tempCOD=self.COD.replace("*","X").rstrip("##")
         #corrispondenza variabili
-        dvar={"A":"WHAT","B":"WHERE"}
+        dvar={"A":"WHAT","B":"WHERE","R":"DEVICE","T":"THERMO","O":"OL","V":"VALV"}
         for reg in self.regex[self.who]:
-            #print reg[0]
             pars=self.re.compile(reg[0])
+            #print reg[0], tempCOD
             pars=pars.match(tempCOD)
+            
             if pars:
                 resdict=pars.groupdict()
                 resdicth=resdict
                 for chiave in resdict.keys():
+
+                    #se finisce con H da umanizzare
                     if chiave[-1]=="H":
                         #riscrivere piu leggibile la seguente righa
                         resdicth[chiave]=self.__readHuman(dvar[chiave[0]],self.who,resdict[chiave].replace("#","G"))
+
+                    #se finisce con T - temperatura
+                    if chiave[-1]=="T":
+                        resdicth[chiave]=resdicth[chiave][1:3]+","+resdicth[chiave][3]
                 return reg[1].format(**resdicth)
 
 

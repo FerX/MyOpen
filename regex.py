@@ -70,11 +70,82 @@ W2.append([r""+s+x+cosa+x+dove+e,"{A1H} in {B1H}"])
 
 
 W3=[]
+
+
+
+#lista WHO=4 - THERMO
 W4=[]
+s="^X#4"  #start of regex
+#dove= [1-99] o [1-8]+[1-99]
+dove="(?P<B1H>\S\d{0,2})"
+cosat="(?P<T1H>\d{1,2})"
+cosa="(?P<A1H>\d{1,3})"
+temperatura="(?P<N1T>\d{4})"
+offset="(?P<O1H>\d{1,2})"
+vc="(?P<V1H>\d)"
+vr="(?P<V2H>\d)"
+
+#temperatura misurata *#4*dove*0*T##
+W4.append([r""+s+x+dove+x+cosat+x+temperatura+e,"{T1H} {N1T} gradi rilevata dal {B1H}"])
+#temeratura di set-point
+W4.append([r""+s+x+dove+x+cosat+x+temperatura+x+"3"+e,"{T1H} {N1T} gradi rilevata dal {B1H}"])
+#impostaqzione locale della zona N
+W4.append([r""+s+x+dove+x+cosat+x+offset+e,"{T1H} {B1H} {O1H} "])
+#stato valvole della zona N
+W4.append([r""+s+x+dove+x+cosat+x+vc+x+vr+e,"{T1H} {B1H} {V1H} {V2H} "])
+#modalita funzionamento zona N
+W4.append([r""+s+x+cosa+x+dove+e,"{A1H} in {B1H} "])
+#da completare...
+
+#lista WHO=5 - ANTIFURTO
 W5=[]
+s="^X5"  #start of regex
+cosa="(?P<A1H>\d{1,2})"
+dove="(?P<B1H>\S[^X]\d{0,2})"
+#richiesta stato zona N
+W5.append([r""+s+x+cosa+x+dove+e,"{A1H} {B1H} "])
+#richiesta stato centrale
+W5.append([r""+s+x+cosa+x+x+e,"{A1H}"])
+#richiesta stato AUX - da implementare
+#W5.append([r"^X9"+x+k+x+x+e,"{A1H}"])
+
+
 W7=[]
+
+
+
 W9=[]
+
+#lista WHO=13 - DEVICE
 W13=[]
+s="^X#13"  #start of regex
+cosa="(?P<A1H>[12]?[01234569])"
+
+ora="(?P<O1>\d{2})X(?P<M1>\d{2})X(?P<S1>\d{2})X(?P<F1>\d{3})"
+data="(?P<D1>\d{2})X(?P<G1>\d{2})X(?P<M1>\d{2})X(?P<A1>\d{4})"
+ip="(?P<IP1>\d{1,3})X(?P<IP2>\d{1,3})X(?P<IP3>\d{1,3})X(?P<IP4>\d{1,3})"
+mask="(?P<M1>\d{1,3})X(?P<M2>\d{1,3})X(?P<M3>\d{1,3})X(?P<M4>\d{1,3})"
+mac="(?P<M1>\d{1,3})X(?P<M2>\d{1,3})X(?P<M3>\d{1,3})X(?P<M4>\d{1,3})X(?P<M5>\d{1,3})X(?P<M6>\d{1,3})"
+modello="(?P<R1H>\d{1,2})"
+versione="(?P<F1>(\S+)X(\S+)X(\S+))"
+#richiesta ora
+W13.append([r""+s+x+x+cosa+x+ora+e,"{A1H} {O1}:{M1}:{S1} fuso:{F1}"])
+#richiesta data
+W13.append([r""+s+x+x+cosa+x+data+e,"{A1H} {D1} {G1}/{M1}/{A1}"])
+#richiesta IP
+W13.append([r""+s+x+x+cosa+x+ip+e,"{A1H} {IP1}.{IP2}.{IP3}.{IP4}"])
+#richiesta MASK
+W13.append([r""+s+x+x+cosa+x+mask+e,"{A1H} {M1}.{M2}.{M3}.{M4}"])
+#richiesta MAC
+W13.append([r""+s+x+x+cosa+x+mac+e,"{A1H} {M1}.{M2}.{M3}.{M4}.{M5}.{M6}"])
+#richiesta modello
+W13.append([r""+s+x+x+cosa+x+modello+e,"{A1H} {R1H}"])
+#richiesta firmware
+W13.append([r""+s+x+x+cosa+x+versione+e,"{A1H} {F1}"])
+
+
+#####DA FINIRE ####
+
 W15=[]
 W16=[]
 W17=[]
