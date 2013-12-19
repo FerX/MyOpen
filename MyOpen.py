@@ -186,9 +186,10 @@ class Parser:
     """
     import ConfigParser
     import re
+    import sys
 
-    def __init__(self,lang="IT"):
-        self.LANG=lang
+    def __init__(self,config="config"):
+        self.config=config
        
         self.who=""
         self.who_human=""
@@ -200,12 +201,16 @@ class Parser:
         self.where_human=""
         
         #load lists regex
+        self.sys.path.insert(0,config)
         import regex
+
         #assign lists regex to dictionary
-        self.regex={"0":regex.W0,"1":regex.W1,"2":regex.W2,"3":regex.W3,"4":regex.W4,"5":regex.W5,"7":regex.W7,"9":regex.W9,"13":regex.W13,"15":regex.W15,"16":regex.W16,"17":regex.W17,"1001":regex.W1001,"1004":regex.W1004,"1013":regex.W1013}
+        self.regex={"0":regex.W0,"1":regex.W1,"2":regex.W2,"3":regex.W3,"4":regex.W4,\
+                "5":regex.W5,"7":regex.W7,"9":regex.W9,"13":regex.W13,"15":regex.W15,\
+                "16":regex.W16,"17":regex.W17,"1001":regex.W1001,"1004":regex.W1004,"1013":regex.W1013}
 
     def __readHuman(self,fileconfig,section,key):
-        fileconfig=self.LANG+"/"+fileconfig+".diz"
+        fileconfig=self.config+"/"+fileconfig+".cfg"
         try:
             config=self.ConfigParser.RawConfigParser()
             config.read(fileconfig)
@@ -235,7 +240,7 @@ class Parser:
         #converto i * in X e tolgo gli ultimi due ##
         tempCOD=self.COD.replace("*","X").rstrip("##")
         #corrispondenza variabili
-        dvar={"A":"WHAT","B":"WHERE","R":"DEVICE","T":"THERMO","O":"OL","V":"VALV"}
+        dvar={"A":"what","B":"where","R":"device","T":"thermo","O":"ol","V":"valv"}
         for reg in self.regex[self.who]:
             pars=self.re.compile(reg[0])
             #print reg[0], tempCOD
