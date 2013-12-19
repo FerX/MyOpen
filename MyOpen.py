@@ -145,27 +145,51 @@ class Db:
         except self.sqlite3.Error, e:
             self.errore(e.args[0])
 
-        #Verifico le tabelle presenti nel database
-        cur = self.connect.cursor()
-        cur.execute("SELECT name from sqlite_master WHERE type='table'")
-        lista_tabelle=cur.fetchall()
-        print "lista tabelle:"
-        print lista_tabelle 
+        #Verifico se la tabella log e presente nel database
+        self.cursor = self.connect.cursor()
+        #cur.execute("DROP table if exists 'log'")
+        self.cursor.execute("SELECT name from sqlite_master WHERE type='table' AND name='log'")
+        #primo avvio, creo la tabella log
+        #ID = campo univoco auto-generato
+        #TIME = secondi dal 1970 campo numerico con 2 decimali
+        #WHO
+        #WHE
+        #COD
+        self.cursor.execute("CREATE TABLE if not exists log "+\
+                "(ID INTEGER PRIMARY KEY, TIME TEXT, WHO TEXT, WHE TEXT, COD TEXT)")
+        self.connect.commit()
 
-    
-    def addrow(self, cmdopen, note):
-        #oltre al cmdopen e eventuale note inserisco ID progressivo e TIME in secondi dal 1970
-        pass
+    def addrow(self, time, who, whe, cod):
+        #aggiungo record
+        sql="INSERT into log (time,who,whe,cod) values ('"+time+"','"+who+"','"+whe+"','"+cod+"')"
+        self.cursor.execute(sql)
+        self.connect.commit()
+        #torna il nuovo id
+        return self.cursor.lastrowid
 
     def delrow(self, del_id):
         #cancello il record con del_id
-        pass
+        sql="DELETE FROM log WHERE ID='"+str(del_id)+"'"
+        self.cursor.execute(sql)
+        self.connect.commit()
+
     def readrow(self, read_id):
         #leggo una determinata riga
-        pass
-    def lastrow(self, CHI ):
-        pass
-            
+        sql="SELECT ID,TIME,WHO,WHE,COD FROM log WHERE ID='"+str(read_id)+"'"
+        self.cursor.execute(sql)
+        res=self.cursor.fetchone()
+        dictres={"ID":res[0],"TIME":res[1],"WHO":res[2],"WHERE":res[3],"COD":res[4]}
+        return dictres 
+
+    def lastrow(self,who,whe):
+        #ricerca l'ultimo comando con who e whe
+        #ritorna un dizionario con ID TIME WHO WHERE COD
+        sql="SELECT ID,TIME,WHO,WHE,COD FROM log WHERE WHO='"+str(who)+"' AND WHE='"+str(whe)+"' ORDER BY ID desc"
+        self.cursor.execute(sql)
+        res=self.cursor.fetchone()
+        dictres={"ID":res[0],"TIME":res[1],"WHO":res[2],"WHERE":res[3],"COD":res[4]}
+        return dictres 
+
     def close(self):
         if self.connect:
             self.connect.close()
@@ -187,21 +211,18 @@ class Parser:
     import ConfigParser
     import re
     import sys
+    import copy
 
-    def __init__(self,config="config"):
-        self.config=config
-       
+    def __init__(self):
+        conf=self.ConfigParser.RawConfigParser()
+        conf.read("config.cfg")
+        self.config=conf.get("MyOpen","configdir")
         self.who=""
-        self.who_human=""
-        self.who_flag=False
         self.what=""
-        self.what_human=""
-        self.what_flag=False
         self.where=""
-        self.where_human=""
         
         #load lists regex
-        self.sys.path.insert(0,config)
+        self.sys.path.insert(0,self.config)
         import regex
 
         #assign lists regex to dictionary
@@ -243,12 +264,11 @@ class Parser:
         dvar={"A":"what","B":"where","R":"device","T":"thermo","O":"ol","V":"valv"}
         for reg in self.regex[self.who]:
             pars=self.re.compile(reg[0])
-            #print reg[0], tempCOD
             pars=pars.match(tempCOD)
             
             if pars:
                 resdict=pars.groupdict()
-                resdicth=resdict
+                resdicth=self.copy.copy(resdict)
                 for chiave in resdict.keys():
 
                     #se finisce con H da umanizzare
@@ -259,6 +279,11 @@ class Parser:
                     #se finisce con T - temperatura
                     if chiave[-1]=="T":
                         resdicth[chiave]=resdicth[chiave][1:3]+","+resdicth[chiave][3]
+                    #se campo where
+                    if chiave=="B1H": self.where=resdict[chiave]
+                    #se campo what
+                    if chiave=="A1H": self.what=resdict[chiave]
+
                 return reg[1].format(**resdicth)
 
 
