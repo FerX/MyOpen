@@ -23,7 +23,8 @@ parser=MyOpen.Parser()
 while True:
     x=gateway.readcmd()
     par=parser.parsing(x)
-    print x,time.time(),
-    print parser.who,parser.where,par
-    lastid=database.addrow(str(time.time()),parser.who,parser.where,x)
-    leggi=database.lastrow(parser.who,parser.where)
+    if screen:
+        print x,par
+    if writedb:
+        lastid=database.addrow(str(time.time()),parser.who,parser.where,x)
+        leggi=database.lastrow(parser.who,parser.where)
