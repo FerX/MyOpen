@@ -8,6 +8,7 @@
 import MyOpen
 import ConfigParser
 import time
+import sys
 
 #leggi impostazioni da config e le mette in un dizionario
 conf=MyOpen.ReadConfig("config.cfg","MyDaemon").read()
@@ -23,20 +24,39 @@ if conf["writedb"]:
 parser=MyOpen.Parser()
 
 while True:
-    #leggo un codice dal gateway
-    readcod=gateway.readcmd()
+    try:
+        #leggo un codice dal gateway
+        readcod=gateway.readcmd()
 
-    #verifico se e da saltare
-    skipcod=parser.skip(readcod)
-   
-    #output a schermo se attivato
-    if conf["screen"]:
-        #continuo se non e da saltare
-        if not (skipcod and conf["screenskip"]):
-            par=parser.parsing(readcod)
-            print readcod,par
+        #faccio il parsing
+        par=parser.parsing(readcod)
+        
+        #verifico se e da saltare
+        skipcod=parser.skip(readcod)
+        
+        #devo verificare se e' uguale all'ultima registrazione
+        #vuol dire che c'e' stata una richiesta di stato
+        #non devo quindi memorizzarlo
+        print parser.who, parser.where
+        oldcod=database.lastrow(parser.who,parser.where)
+        if readcod==oldcod["COD"]:
+            print "uguale"
+        else:
+            print "nuovo"
+
+        #output a schermo se attivato
+        if conf["screen"]:
+            #continuo se non e da saltare
+            if not (skipcod and conf["screenskip"]):
+                print readcod,par
+        
+        #scrivi nel db 
+        if conf["writedb"]:
+            if not (skipcod and not conf["writedbskip"]):
+                lastid=database.addrow(parser.who,parser.where,readcod)
     
-    if conf["writedb"]:
-        if not (skipcod and not conf["writedbskip"]):
-            lastid=database.addrow(parser.who,parser.where,readcod)
-            leggi=database.lastrow(parser.who,parser.where)
+    except KeyboardInterrupt:
+        #premuto ctrl-c
+        sys.exit("MyDaemon terminato su richiesta dell'utente")
+    except Exception, e:
+        sys.exit("Errore: "+str(e))

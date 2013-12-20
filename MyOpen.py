@@ -142,12 +142,13 @@ class Gateway:
                 legge dalla connessione socket una riga di messaggio
                 per leggere piu testo metterlo in ciclo loop
         """
-        #implementare errori
         #ricevo un carattere alla volta
         mycmd=""
         while True:
             try:
                 R=self.Soc.recv(1)
+            except KeyboardInterrupt:
+                self.__errore("Programma terminato come richiesto")
             except:
                 self.__errore("non e stato possibile ricevere dal gateway")
             mycmd=mycmd+R
@@ -257,8 +258,11 @@ class Db:
         sql="SELECT ID,TIME,WHO,WHE,COD FROM log WHERE WHO='"+str(who)+"' AND WHE='"+str(whe)+"' ORDER BY ID desc"
         self.cursor.execute(sql)
         res=self.cursor.fetchone()
-        dictres={"ID":res[0],"TIME":res[1],"WHO":res[2],"WHERE":res[3],"COD":res[4]}
-        return dictres 
+        if res:
+            dictres={"ID":res[0],"TIME":res[1],"WHO":res[2],"WHERE":res[3],"COD":res[4]}
+            return dictres 
+        else:
+            return False
 
     def close(self):
         if self.__connect:
@@ -381,23 +385,29 @@ class ReadConfig:
     """
     legge la configurazione dal file e ritorna un dizionario
     con i campi definiti """
+    import sys
+
     def __init__(self,nomefile,sezione):
         import ConfigParser
         c=ConfigParser.RawConfigParser()
-        c.read(nomefile)
-        c=c.items(sezione)
-        self.conf={}
-        for x in c:
-            xkey=x[0]
-            xval=x[1]
-            #se booleano lo converto
-            if xval in ["True", "true", "vero" , "Vero", "1"]:
-                xval=True
-            elif xval in ["False", "false", "falso" , "Falso", "0"]:
-                xval=False
+        try:
+            c.read(nomefile)
+            c=c.items(sezione)
+            self.conf={}
+            for x in c:
+                xkey=x[0]
+                xval=x[1]
+                #se booleano lo converto
+                if xval in ["True", "true", "vero" , "Vero", "1"]:
+                    xval=True
+                elif xval in ["False", "false", "falso" , "Falso", "0"]:
+                    xval=False
             
-            self.conf[xkey]=xval
-       
+                self.conf[xkey]=xval
+        except:
+            self.sys.exit("Impossibile leggere il file di configurazione "+nomefile) 
+
+
     def read(self):
         return self.conf
 
