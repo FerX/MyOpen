@@ -373,4 +373,32 @@ class Parser:
             if cod.startswith(x[1]):
                 #trovato, quindi devo saltare
                 return True
+        
+        return False
+
+
+class ReadConfig:
+    """
+    legge la configurazione dal file e ritorna un dizionario
+    con i campi definiti """
+    def __init__(self,nomefile,sezione):
+        import ConfigParser
+        c=ConfigParser.RawConfigParser()
+        c.read(nomefile)
+        c=c.items(sezione)
+        self.conf={}
+        for x in c:
+            xkey=x[0]
+            xval=x[1]
+            #se booleano lo converto
+            if xval in ["True", "true", "vero" , "Vero", "1"]:
+                xval=True
+            elif xval in ["False", "false", "falso" , "Falso", "0"]:
+                xval=False
+            
+            self.conf[xkey]=xval
+       
+    def read(self):
+        return self.conf
+
 
