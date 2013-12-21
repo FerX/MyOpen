@@ -37,23 +37,27 @@ while True:
         #devo verificare se e' uguale all'ultima registrazione
         #vuol dire che c'e' stata una richiesta di stato
         #non devo quindi memorizzarlo
-        print parser.who, parser.where
-        oldcod=database.lastrow(parser.who,parser.where)
-        if readcod==oldcod["COD"]:
-            print "uguale"
-        else:
-            print "nuovo"
+        #solo se who=1 e ??? 
+        doublecod=False
+        if parser.who in ["1"]:
+            oldcod=database.lastrow(parser.who,parser.where)
+            if type(oldcod)==dict:
+               if readcod==oldcod["COD"]:
+                    doublecod=True
 
         #output a schermo se attivato
         if conf["screen"]:
             #continuo se non e da saltare
-            if not (skipcod and conf["screenskip"]):
-                print readcod,par
+            if not skipcod or conf["screenskip"]:
+                #continuo anche se e un duplicato
+                if not doublecod or conf["screendouble"]:
+                    print readcod,par
         
         #scrivi nel db 
         if conf["writedb"]:
             if not (skipcod and not conf["writedbskip"]):
-                lastid=database.addrow(parser.who,parser.where,readcod)
+                if not doublecod or conf["dbdouble"]:
+                    lastid=database.addrow(parser.who,parser.where,readcod)
     
     except KeyboardInterrupt:
         #premuto ctrl-c
