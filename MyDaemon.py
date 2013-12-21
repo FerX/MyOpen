@@ -32,14 +32,13 @@ while True:
         par=parser.parsing(readcod)
         
         #verifico se e da saltare
-        skipcod=parser.skip(readcod)
+        skipcod=parser.skipdouble("skip",readcod)
         
         #devo verificare se e' uguale all'ultima registrazione
         #vuol dire che c'e' stata una richiesta di stato
-        #non devo quindi memorizzarlo
-        #solo se who=1 e ??? 
         doublecod=False
-        if parser.who in ["1"]:
+        #se codice inizia come definito nel file di config skipdouble.cfg
+        if parser.skipdouble("double",readcod):
             oldcod=database.lastrow(parser.who,parser.where)
             if type(oldcod)==dict:
                if readcod==oldcod["COD"]:

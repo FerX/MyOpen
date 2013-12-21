@@ -361,16 +361,16 @@ class Parser:
                 return reg[1].format(**resdicth)
 
 
-    def skip(self,cod):
+    def skipdouble(self,cat,cod):
         """ determina se il codice rientra nella lista da saltare 
         riceve come argomento un codice openwebnet
-        la lista da saltare e' memorizzata nel file skip.cfg
+        la lista da saltare e' memorizzata nel file skipdouble.cfg
         """
       
         skip=self.ConfigParser.RawConfigParser()
-        fileskip=self.config+"/"+"skip.cfg"
+        fileskip=self.config+"/"+"skipdouble.cfg"
         skip.read(fileskip)
-        skip=skip.items("skip")
+        skip=skip.items(cat)
         
         for x in skip:
             #verifico se cod inizia con quando definito in skip.cfg
@@ -412,3 +412,47 @@ class ReadConfig:
         return self.conf
 
 
+class Robot:
+    """
+    Classe che gestisce come un robot l'esecuzione di scenari
+    semplici o super-evoluti memorizzati in file di configurazione
+
+
+    eventi che avviamo lo scenario:
+        Codice open 
+        Regex di codice open
+        data e ora
+    vincoli ammissibili:
+        stato di luci o altro
+        stato di variabili definite da altri scenari
+    cosa puo fare:
+        timer
+        programmare uno scenario ad una data o ora
+        inviare codici open
+        eseguire programmi linux
+        inviare email
+        inviare sms
+        
+    definire una cartella robot 
+    ogni file definisce la configurazione per uno scenario
+
+    composizione del file:
+    [header]
+    nome:nomescenario
+    descrizione: descrizione completa dello scenario
+    attivo: True/False
+
+    [evento]
+    myopen=*1*1*77##
+    myopen.re=
+    dataora=studia formato crontab - vedi libreria croniter
+
+
+    [vincolo]
+    
+    
+    [esegui]
+
+
+    
+    """
