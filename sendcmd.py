@@ -5,9 +5,12 @@
 import MyOpen
 import sys
 
-X=MyOpen.Gateway("192.168.1.7",20000)
+print "ricorda di passare comando myopen racchiuso tra virgolette"
 
-cmd=sys.argv[1]
-print cmd
-print X.sendcmd(cmd)
+X=MyOpen.Gateway("192.168.1.13",20000)
+
+if len(sys.argv)>1:
+    cmd=sys.argv[1]
+    print cmd
+    print X.sendcmd(cmd)
 
