@@ -288,9 +288,7 @@ class Parser:
     import copy
 
     def __init__(self):
-        conf=self.ConfigParser.RawConfigParser()
-        conf.read("config.cfg")
-        self.config=conf.get("MyOpen","configdir")
+        self.config="config"
         self.who=""
         self.what=""
         self.where=""

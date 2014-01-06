@@ -5,13 +5,13 @@
 # se db lo scrive nel database sqlite
 # utilizza il db per leggere l'ultimo stato
 # e registrare se e cambiato
-import MyOpen
+from lib import MyOpen
 import ConfigParser
 import time
 import sys
 
 #leggi impostazioni da config e le mette in un dizionario
-conf=MyOpen.ReadConfig("config.cfg","MyDaemon").read()
+conf=MyOpen.ReadConfig("config/config.cfg","MyDaemon").read()
 
 #Connessione al gataway
 gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]),"monitor")
