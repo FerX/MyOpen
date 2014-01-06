@@ -416,7 +416,7 @@ class Robot:
     """
     Classe che gestisce come un robot l'esecuzione di scenari
     semplici o super-evoluti memorizzati in file di configurazione
-
+    valutare utilizzo di xml per configurazione
 
     eventi che avviamo lo scenario:
         Codice open 
