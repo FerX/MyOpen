@@ -18,7 +18,7 @@ gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]),"monitor")
 
 #connessione al database
 if conf["writedb"]:
-    database=MyOpen.Db(conf["nomedb"])
+    database=MyOpen.Db("log/"+conf["nomedb"])
 
 #connessione al parser
 parser=MyOpen.Parser()
