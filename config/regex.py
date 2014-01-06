@@ -114,7 +114,16 @@ W7=[]
 
 
 
+#lista WHO=9 - ausiliari
 W9=[]
+s="^X9"  #start of regex
+cosa="(?P<A1H>\d{1,2})"
+dove="(?P<B1H>\S[^X]\d{0,2})"
+#richiesta stato zona N
+W9.append([r""+s+x+cosa+x+dove+e,"{A1H} {B1H} "])
+
+
+
 
 #lista WHO=13 - DEVICE
 W13=[]
