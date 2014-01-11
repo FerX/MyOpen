@@ -60,7 +60,7 @@ class Gateway:
         print gate.readcmd()
     """
     import sys
-
+    import os
     ACK="*#*1##" #OK
     NACK="*#*0##" #ERROR
     MONITOR="*99*1##" 
@@ -287,8 +287,8 @@ class Parser:
     import sys
     import copy
 
-    def __init__(self):
-        self.config="config"
+    def __init__(self,mydir=""):
+        self.config=mydir+"/config"
         self.who=""
         self.what=""
         self.where=""
