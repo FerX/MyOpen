@@ -23,7 +23,7 @@ parser=MyOpen.Parser()
 
 #inizializzo gestore schermo
 S=curses.initscr()
-
+curses.start_color()
 #attivo noecho tastiera
 curses.noecho()
 curses.cbreak()
@@ -33,6 +33,10 @@ R,C=S.getmaxyx()
 R=R-2
 C=C-2
 fine=False
+sino_parsing=False
+
+#pair dei colori
+curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 
 def readsql(limit,offset):
     sql="SELECT ID,TIME,WHO,WHE,COD FROM LOG ORDER BY ID DESC LIMIT "+str(limit)+" OFFSET "+str(offset)
@@ -46,7 +50,11 @@ def readsql(limit,offset):
         who=r[2]
         whe=r[3]
         cod=r[4]
-        pars=parser.parsing(cod)
+        global sino_parsing
+        if sino_parsing:
+            pars=parser.parsing(cod)
+        else:
+            pars=""
         Sret.append([str(id),stime,str(who),str(whe),cod,str(pars)])
         conta+=1
     global fine
@@ -54,8 +62,6 @@ def readsql(limit,offset):
     if conta<limit:
         fine=True
     return Sret
-
-        
 
 def scrivi(pagina):
     row=readsql(R,pagina)
@@ -72,18 +78,20 @@ while True:
     S.border()
     scrivi(pagina)
     #num pagina
-    S.addstr(R+1,C-20,"["+str(pagina)+":"+str(pagina+R)+"]")   
+    S.addstr(R+1,C-20,"["+str(pagina)+":"+str(pagina+R)+"]",curses.color_pair(2))   
     #comandi
-    S.addstr(R+1,5,"[ SU-PAGSU GIU-PAGGIU  ESC o q]")   
+    S.addstr(R+1,5,"[Esc/q=esci Su/PagSu - Giu/PagGiu p=attiva/disattiva parsing]",curses.color_pair(2))   
     #testata
-    S.addstr(0,5,"[ VISUALIZZAZIONE DI LOG - MyOpenWebNet]")   
+    S.addstr(0,5,"[ VISUALIZZAZIONE DI LOG - MyOpenWebNet]",curses.color_pair(2))   
 
     while True: 
         c = S.getch()
+        
+        #S.addstr(0,0,str(c))
         #se premo ESC o q
         if c == 113 or c == 27:  
             curses.endwin()
-            sys.exit(c)
+            sys.exit()
         #pagina su o tasto su
         elif c == 259 or c == 339:
             pagina-=R
@@ -94,4 +102,12 @@ while True:
             if not fine:
                 pagina+=R
             break
-
+        #attiva/disattiva parsing 
+        elif c == 112:
+            if sino_parsing:
+                sino_parsing=False
+            else:
+                sino_parsing=True
+            break
+       
+            
