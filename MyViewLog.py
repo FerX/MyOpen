@@ -80,8 +80,10 @@ while True:
     #num pagina
     S.addstr(R+1,C-20,"["+str(pagina)+":"+str(pagina+R)+"]",curses.color_pair(2))   
     #comandi
-    S.addstr(R+1,5,"[Esc/q=esci Su/PagSu - Giu/PagGiu p=attiva/disattiva parsing]",curses.color_pair(2))   
     #testata
+    #S.addstr(R+1,5,"[Esc/q=esci]" parsing]",curses.color_pair(2))   
+    S.addstr(R+1,5,"[Su/PagSu-Giu/PagGiu] [p=attiva/disattiva parsing] [Esc/q=esci]",curses.color_pair(2))   
+    
     S.addstr(0,5,"[ VISUALIZZAZIONE DI LOG - MyOpenWebNet]",curses.color_pair(2))   
 
     while True: 
