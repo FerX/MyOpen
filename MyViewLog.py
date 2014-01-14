@@ -37,6 +37,7 @@ sino_parsing=False
 
 #pair dei colori
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
+curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
 
 def readsql(limit,offset):
     sql="SELECT ID,TIME,WHO,WHE,COD FROM LOG ORDER BY ID DESC LIMIT "+str(limit)+" OFFSET "+str(offset)
@@ -46,7 +47,9 @@ def readsql(limit,offset):
     for r in database.cursor.fetchall():
         id=r[0]
         t=time.localtime(float(r[1]))
-        stime=str(t[3]).rjust(2,"0")+":"+str(t[4]).rjust(2,"0")+":"+str(t[5]).rjust(2,"0")+" "+str(t[2]).rjust(2,"0")+"-"+str(t[1]).rjust(2,"0")+"-"+str(t[0]).rjust(2,"0")
+        data=str(t[2]).rjust(2,"0")+"-"+str(t[1]).rjust(2,"0")+"-"+str(t[0])[2:]
+        ora=str(t[3]).rjust(2,"0")+":"+str(t[4]).rjust(2,"0")+":"+str(t[5]).rjust(2,"0")
+        stime=data+" "+ora
         who=r[2]
         whe=r[3]
         cod=r[4]
@@ -67,10 +70,26 @@ def scrivi(pagina):
     row=readsql(R,pagina)
     riga=1
     for x in row:
-        output=x[1]+" "+x[4]+" "+x[5]
-        S.addstr(riga,1,output)
+        S.addstr(riga,1,x[1])
+        S.addstr(riga,len(x[1])+2,x[4],curses.color_pair(3))
+        tronca=C-(20+len(x[4]))
+        S.addstr(riga,20+len(x[4]),x[5][:tronca])
+
         riga+=1
     S.refresh()
+
+
+def aiuto():
+    H=curses.newwin(11,40,10,20)
+    H.border()
+    H.addstr(0,10,"[HELP]",curses.color_pair(2))
+    H.addstr(2,2,"Su/PagSu = Scorri in su",curses.color_pair(2))
+    H.addstr(4,2,"Giu/PagGiu = Scorri in giu",curses.color_pair(2))
+    H.addstr(6,2,"p = Attiva/disattiva parsing",curses.color_pair(2))
+    H.addstr(8,2,"Esc / q = Esci dal programma",curses.color_pair(2))
+
+    c = H.getch()
+
 
 pagina=0
 while True:
@@ -82,14 +101,14 @@ while True:
     #comandi
     #testata
     #S.addstr(R+1,5,"[Esc/q=esci]" parsing]",curses.color_pair(2))   
-    S.addstr(R+1,5,"[Su/PagSu-Giu/PagGiu] [p=attiva/disattiva parsing] [Esc/q=esci]",curses.color_pair(2))   
+    S.addstr(R+1,5,"[F1=HELP]",curses.color_pair(2))   
     
     S.addstr(0,5,"[ VISUALIZZAZIONE DI LOG - MyOpenWebNet]",curses.color_pair(2))   
 
     while True: 
         c = S.getch()
         
-        #S.addstr(0,0,str(c))
+        S.addstr(0,0,str(c))
         #se premo ESC o q
         if c == 113 or c == 27:  
             curses.endwin()
@@ -111,5 +130,10 @@ while True:
             else:
                 sino_parsing=True
             break
-       
-            
+        #h o f1 - help
+        
+        elif c == 104 or c == 265:
+            aiuto()
+            break
+
+
