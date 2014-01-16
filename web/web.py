@@ -5,6 +5,7 @@ import cherrypy
 #importo il mio file dove definisco le var statiche
 import static
 from lxml import etree
+import pickle
 
 class StartServer:
     """ Sample request handler class. """
@@ -20,20 +21,19 @@ class StartServer:
             //document.ontouchmove = function(event){ event.preventDefault(); };
             //move beyond the address  bar to hide ;
             //window.scrollTo(0, 1);
-            
-            $("#send").submit(function() {
-                       var com = {nome:$("#comando").val()}; 
-                       $.post('/request', com);
+            $("button").click(function( eventObject ) {
+                       var com  = $( this );
+                       $.post('/request', com  );
                        return false;
                         });
             });
         </script>
         </head>
         '''
-
+        #lettura file xml configurazione
         file_xml=open("config.xml").read()
-
         root=etree.fromstring(file_xml)
+        
         yield "\n <body>"
         
         #inizializzazione tabs
@@ -47,15 +47,14 @@ class StartServer:
         menu_tabs+='\n </ul> \n</div>'
         yield menu_tabs
         
+        #pagina
         for pagina in root.iter("Pagina"):
-            #yield "<br>pagina.tag %s" % (pagina.tag)
-            #yield "<br>pagina.text %s" % (pagina.text)
-            #yield "<br>pagina.attrib %s" % (pagina.attrib)
             
             nomepagina=pagina.attrib["txt"] 
+            chi=pagina.attrib["chi"]
             
             #Inizializzazione nuovo tabs
-            yield '\n <div id="%s" class="ui-content">' % (nomepagina)
+            yield '\n <div id="%s" class="ui-content" style="padding:0">' % (nomepagina)
             
             #Header Pagina
             yield "\n <div data-role='header'>"
@@ -63,15 +62,12 @@ class StartServer:
             yield "\n </div>" 
             
             #contenuto pagina
-            yield "\n <div role='main' class='ui-content'>"
+            yield '\n <div role="main" class="ui-content" style="padding:1px">'
 
             #definizione collapsible set
             yield '\n <div data-role="collapsible-set" data-theme="a" data-content-theme="a">'
             
             for sezione in pagina.iter("Sezione"):
-                #yield "<br>---sezioni.tag %s" % (sezioni.tag)
-                #yield "<br>---sezioni.text %s" % (sezioni.text)
-                #yield "<br>---sezioni.attrib %s" % (sezioni.attrib)
                 
                 nomesezione=sezione.attrib["txt"]
 
@@ -84,23 +80,33 @@ class StartServer:
                     #yield "<br>------punti.tag %s" % (punti.tag)
                     #yield "<br>------punti.text %s" % (punti.text)
                     #yield "<br>------punti.attrib %s" % (punti.attrib)
+                    
                     nomepunto=punto.attrib["txt"]
+                    dove=punto.attrib["dove"]
+                    
 
                     #bottone
+                    #ogni bottone contiene in value tutte le informazioni serializzate
+                    #un dizionario con i seguenti campi
+                    #chi:1,dove:77,cosa:on/off,comando
+
+                    #definizione gruppo di pulsanti
                     yield '\n <div data-role="controlgroup" data-type="horizontal">' 
-                    yield '\n <a href="#" class="ui-btn">%s</a>' % (nomepunto)
-                    yield '\n <a href="?a=0101" class="ui-btn">%s</a>' % ("ON")
-                    yield '\n <a href="/request" class="ui-btn">%s</a>' % ("OFF")
-                    yield '\n <form id="send" action"#" method="post">'
-                    yield '\n <input type="hidden" id="comando" value="*1*1*77">'
-                    yield '\n <input type="submit" value="ON">'
-                    yield '\n </form>'
-                    yield '\n </div>'
+                    
+                    val={"chi":chi,"dove":dove,"cosa":"setting"}
+                    cod_val=pickle.dumps(val,2)
+                    #pulsante principale
+                    yield '\n <button class="ui-btn ui-btn-inline"  value="%s" style="width:90px"> %s</button>' % (cod_val,nomepunto)
                     for setting in punto.iter("*"):
                         #yield "\n <br>---------setting.tag  %s" % (setting.tag)
                         #yield "\n <br>---------setting.text %s" % (setting.text)
                         #yield "\n <br>---------setting.attrib %s" % (setting.attrib)
-                        pass 
+                        pass
+                    
+                    yield '\n <button class="ui-btn ui-btn-inline"  value="provaon">ON</button>'
+                    yield '\n <button class="ui-btn ui-btn-inline"  value="provaoff">OFF</button>'
+                    
+                    yield '\n </div>'
 
                 #chiusura collapsible
                 yield '\n </div>'
@@ -127,8 +133,11 @@ class StartServer:
     @cherrypy.expose
     def request(self, **data):
         # Then to access the data do the following
-        print "nome: "+str(data)
-        #key = data['key_pressed'].lower()
-        #print "fatto: "+str(data)
+        print "data: "+str(data)
+        #for x in data.keys():
+        #    print str(data[x])
+        val=data.values()[0]
+        val=pickle.loads(val)
+        print "data form: "+str(val)
             
 cherrypy.quickstart(StartServer(), config="web.conf")
