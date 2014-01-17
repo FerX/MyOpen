@@ -3,18 +3,43 @@
 import cherrypy
 
 #importo il mio file dove definisco le var statiche
-import static
 from lxml import etree
 import pickle
+import urllib
+import MyOpen
+
+#leggi impostazioni da config e le mette in un dizionario
+conf=MyOpen.ReadConfig("../config/config.cfg","MyDaemon").read()
+
+#Connessione al gataway
+gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]))
+
+
 
 class StartServer:
     """ Sample request handler class. """
     @cherrypy.expose
     def index(self):
-        yield static.HEADER
-        
-        #lettura comandi
-        
+
+        yield '''<!DOCTYPE html>
+        <html>
+        <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0;" />
+        <meta name="viewport" content="width=device-width"/>
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <title>
+        </title>
+        <link rel="stylesheet" href="jquery/jquery.mobile-1.4.0.min.css" />
+        <style>
+            /* App custom styles */
+        </style>
+        <script src="jquery/jquery-1.9.1.min.js">
+        </script>
+        <script src="jquery/jquery.mobile-1.4.0.min.js">
+        </script>
+        '''
+        #codice javascript che riceve la pressione del pulsante 
         yield '''<script type="text/javascript">
         $(function() {
             //stop the page from doing a stretch from the top when dragged ;
@@ -31,8 +56,8 @@ class StartServer:
         </head>
         '''
         #lettura file xml configurazione
-        file_xml=open("config.xml").read()
-        root=etree.fromstring(file_xml)
+        file_xml=open("../config/configweb.xml").read()
+        config_xml=etree.fromstring(file_xml)
         
         yield "\n <body>"
         
@@ -40,15 +65,15 @@ class StartServer:
         menu_tabs='\n <div data-role="tabs">'
         menu_tabs+='\n <div data-role="navbar">'
         menu_tabs+='\n <ul>'
-        for pagina in root.iter("Pagina"):
+        for pagina in config_xml.iter("Pagina"):
             menu_tabs+='\n <li><a href="#%s" data-theme="a" data-ajax="false">%s</a></li>' % \
                     (pagina.attrib["txt"],pagina.attrib["txt"])
         
         menu_tabs+='\n </ul> \n</div>'
         yield menu_tabs
         
-        #pagina
-        for pagina in root.iter("Pagina"):
+        #### Pagina
+        for pagina in config_xml.iter("Pagina"):
             
             nomepagina=pagina.attrib["txt"] 
             chi=pagina.attrib["chi"]
@@ -77,9 +102,6 @@ class StartServer:
 
 
                 for punto in sezione.iter("Punto"):
-                    #yield "<br>------punti.tag %s" % (punti.tag)
-                    #yield "<br>------punti.text %s" % (punti.text)
-                    #yield "<br>------punti.attrib %s" % (punti.attrib)
                     
                     nomepunto=punto.attrib["txt"]
                     dove=punto.attrib["dove"]
@@ -94,17 +116,20 @@ class StartServer:
                     yield '\n <div data-role="controlgroup" data-type="horizontal">' 
                     
                     val={"chi":chi,"dove":dove,"cosa":"setting"}
-                    cod_val=pickle.dumps(val,2)
-                    #pulsante principale
-                    yield '\n <button class="ui-btn ui-btn-inline"  value="%s" style="width:90px"> %s</button>' % (cod_val,nomepunto)
-                    for setting in punto.iter("*"):
-                        #yield "\n <br>---------setting.tag  %s" % (setting.tag)
-                        #yield "\n <br>---------setting.text %s" % (setting.text)
-                        #yield "\n <br>---------setting.attrib %s" % (setting.attrib)
-                        pass
+                    #rendo il dizionario una stringa codificata
+                    cod_val=urllib.quote(pickle.dumps(val))
+                   
+                    #pulsante principale - premendolo apre le impostazioni
+                    yield '\n <button class="ui-btn ui-btn-inline"  value="%s" \
+                            style="width:90px"> %s</button>' % (cod_val,nomepunto)
                     
-                    yield '\n <button class="ui-btn ui-btn-inline"  value="provaon">ON</button>'
-                    yield '\n <button class="ui-btn ui-btn-inline"  value="provaoff">OFF</button>'
+                    #genera i pulsanti per i vari comandi
+                    for setting in punto.iter("Comando"):
+                        cosa=setting.text                    
+                        val={"chi":chi,"dove":dove,"cosa":cosa}
+                        #rendo il dizionario una stringa codificata
+                        cod_val=urllib.quote(pickle.dumps(val))
+                        yield '\n <button class="ui-btn ui-btn-inline" value="%s">%s</button>' % (cod_val,cosa)
                     
                     yield '\n </div>'
 
@@ -132,12 +157,24 @@ class StartServer:
         '''
     @cherrypy.expose
     def request(self, **data):
-        # Then to access the data do the following
-        print "data: "+str(data)
-        #for x in data.keys():
-        #    print str(data[x])
         val=data.values()[0]
-        val=pickle.loads(val)
+        #decodifico il dizionario
+        val=pickle.loads(urllib.unquote(val))
         print "data form: "+str(val)
-            
+        chi=val["chi"]
+        dove=val["dove"]
+        cosa=val["cosa"]
+        if cosa=="ON":
+            cosa_cmd="1"
+        elif cosa=="OFF":
+            cosa_cmd="0"
+        else:
+            cosa_cmd=""
+
+        cmd="*"+chi+"*"+cosa_cmd+"*"+dove+"##"
+
+        print cmd
+        print gateway.sendcmd(cmd)
+
+
 cherrypy.quickstart(StartServer(), config="web.conf")

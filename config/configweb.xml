@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<root>
+<Pagina txt="illuminazione" chi="1">
+    <Sezione txt="ufficio">
+	<Punto txt="Scrivania" dove="78">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+	</Punto>	    
+        <Punto txt="Corridoio" dove="74">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+        <Punto txt="Scala" dove="77">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+    </Sezione>
+    <Sezione txt="mansarda">
+        <Punto txt="Luce SX" dove="73">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+        <Punto txt="Luce Centro" dove="72">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+        <Punto txt="Luce DX" dove="71">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+    </Sezione>
+
+
+</Pagina>
+
+
+<Pagina txt="riscaldamento" chi="3">
+    <Sezione txt="soggiorno">
+        <Punto txt="Dietro divano" dove="22">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+        <Punto txt="Tvo" dove="32">
+	    <Comando>ON</Comando>
+	    <Comando>OFF</Comando>
+        </Punto>
+    </Sezione>
+</Pagina>
+
+
+
+</root>
