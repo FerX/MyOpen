@@ -251,6 +251,7 @@ class Db:
         res=self.cursor.fetchone()
         dictres={"ID":res[0],"TIME":res[1],"WHO":res[2],"WHERE":res[3],"COD":res[4]}
         return dictres 
+    
 
     def lastrow(self,who,whe):
         #ricerca l'ultimo comando con who e whe
@@ -263,6 +264,7 @@ class Db:
             return dictres 
         else:
             return False
+    
 
     def close(self):
         if self.__connect:
@@ -288,7 +290,9 @@ class Parser:
     import copy
 
     def __init__(self,mydir=""):
-        self.config=mydir+"/config"
+        if not mydir=="":
+            mydir=mydir+"/"
+        self.config=mydir+"config"
         self.who=""
         self.what=""
         self.where=""
