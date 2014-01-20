@@ -1,27 +1,16 @@
 #!/usr/bin/python 
 
-import cherrypy
+class MyWebJQMobile:
+    """Classe per generare i vari componenti jquerymobile
+        per interfaccia web"""
 
-#importo il mio file dove definisco le var statiche
-from lxml import etree
-import pickle
-import urllib
-import MyOpen
+    import pickle
+    import urllib
 
-#leggi impostazioni da config e le mette in un dizionario
-conf=MyOpen.ReadConfig("../config/config.cfg","MyDaemon").read()
+    def initHTML(self):
+        #Genero il primo blocco di codice da inviiare al browser
 
-#Connessione al gataway
-gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]))
-
-
-
-class StartServer:
-    """ Sample request handler class. """
-    @cherrypy.expose
-    def index(self):
-
-        yield '''<!DOCTYPE html>
+        return '''<!DOCTYPE html>
         <html>
         <head>
         <meta charset="utf-8" />
@@ -38,9 +27,7 @@ class StartServer:
         </script>
         <script src="jquery/jquery.mobile-1.4.0.min.js">
         </script>
-        '''
-        #codice javascript che riceve la pressione del pulsante 
-        yield '''<script type="text/javascript">
+        <script type="text/javascript">
         $(function() {
             //stop the page from doing a stretch from the top when dragged ;
             //document.ontouchmove = function(event){ event.preventDefault(); };
@@ -54,127 +41,109 @@ class StartServer:
             });
         </script>
         </head>
+        <body>
         '''
-        #lettura file xml configurazione
-        file_xml=open("../config/configweb.xml").read()
-        config_xml=etree.fromstring(file_xml)
+
+    def openPage(self,nomepagina,header=""):
+        S='\n'
+        S+='\n <!-- Inizio Pagina %s -->' % (nomepagina)
+        S+='\n <div data-role="page" id=%s' % (self.urllib.quote(nomepagina))
         
-        yield "\n <body>"
+        if header!="":
+            S+='\n <!-- Inizio Header pagina %s -->' % (nomepagina)
+            S+='\n <div data-role="header">'
+            S+='\n %s' % (header)
+            S+='\n <\div>  <!-- fine header-->'
         
-        #inizializzazione tabs
-        menu_tabs='\n <div data-role="tabs">'
-        menu_tabs+='\n <div data-role="navbar">'
-        menu_tabs+='\n <ul>'
-        for pagina in config_xml.iter("Pagina"):
-            menu_tabs+='\n <li><a href="#%s" data-theme="a" data-ajax="false">%s</a></li>' % \
-                    (pagina.attrib["txt"],pagina.attrib["txt"])
+        S+='\n <!-- Inizio contenuto pagina %s -->' % (nomepagina)
+        S+='\n <div role="main" class="ui-content">'
+
+        return S
+
+    def closePage(self,nomepagina,footer=""):
+        S='\n'
+        S+='\n </div> <!-- Fine contenuto pagina %s -->' % (nomepagina)
         
-        menu_tabs+='\n </ul> \n</div>'
-        yield menu_tabs
+        if footer!="":
+            S+='\n <!-- Inizio footer pagina %s ' % (nomepagina)
+            S+='\n <div data-role="footer">'
+            S+='\n %s' % (footer)
+            S+='\n </div> <!-- Fine footer-->'
         
-        #### Pagina
-        for pagina in config_xml.iter("Pagina"):
-            
-            nomepagina=pagina.attrib["txt"] 
-            chi=pagina.attrib["chi"]
-            
-            #Inizializzazione nuovo tabs
-            yield '\n <div id="%s" class="ui-content" style="padding:0">' % (nomepagina)
-            
-            #Header Pagina
-            yield "\n <div data-role='header'>"
-            #yield "\n <h1> %s </h1>" % (nomepagina)
-            yield "\n </div>" 
-            
-            #contenuto pagina
-            yield '\n <div role="main" class="ui-content" style="padding:1px">'
-
-            #definizione collapsible set
-            yield '\n <div data-role="collapsible-set" data-theme="a" data-content-theme="a">'
-            
-            for sezione in pagina.iter("Sezione"):
-                
-                nomesezione=sezione.attrib["txt"]
-
-                #collapsible
-                yield '\n <div data-role="collapsible">'
-                yield '\n      <h3> %s </h3>' % (nomesezione)
-
-
-                for punto in sezione.iter("Punto"):
-                    
-                    nomepunto=punto.attrib["txt"]
-                    dove=punto.attrib["dove"]
-                    
-
-                    #bottone
-                    #ogni bottone contiene in value tutte le informazioni serializzate
-                    #un dizionario con i seguenti campi
-                    #chi:1,dove:77,cosa:on/off,comando
-
-                    #definizione gruppo di pulsanti
-                    yield '\n <div data-role="controlgroup" data-type="horizontal">' 
-                    
-                    val={"chi":chi,"dove":dove,"cosa":"setting"}
-                    #rendo il dizionario una stringa codificata
-                    cod_val=urllib.quote(pickle.dumps(val))
-                   
-                    #pulsante principale - premendolo apre le impostazioni
-                    yield '\n <button class="ui-btn ui-btn-inline"  value="%s" \
-                            style="width:90px"> %s</button>' % (cod_val,nomepunto)
-                    
-                    #genera i pulsanti per i vari comandi
-                    for setting in punto.iter("Comando"):
-                        cosa=setting.text                    
-                        val={"chi":chi,"dove":dove,"cosa":cosa}
-                        #rendo il dizionario una stringa codificata
-                        cod_val=urllib.quote(pickle.dumps(val))
-                        yield '\n <button class="ui-btn ui-btn-inline" value="%s">%s</button>' % (cod_val,cosa)
-                    
-                    yield '\n </div>'
-
-                #chiusura collapsible
-                yield '\n </div>'
-            
-            #Chiusura collapsible set
-            yield "\n </div>"
-            #Chiusura contenuto pagina
-            yield "\n </div>"
-
-            #Footer pagina
-            yield "\n <div data-role='footer'>"
-            yield "\n </div>"
-
-            #Chiusura pagina
-            yield "\n </div>"
-
-        #menu pagine
-        yield menu_tabs
+        S+='\n </div> <!-- Fine pagina %s -->' % (nomepagina)
         
-        yield '''
-        \n </body>
-        \n </html>
-        '''
-    @cherrypy.expose
-    def request(self, **data):
-        val=data.values()[0]
-        #decodifico il dizionario
-        val=pickle.loads(urllib.unquote(val))
-        print "data form: "+str(val)
-        chi=val["chi"]
-        dove=val["dove"]
-        cosa=val["cosa"]
-        if cosa=="ON":
-            cosa_cmd="1"
-        elif cosa=="OFF":
-            cosa_cmd="0"
-        else:
-            cosa_cmd=""
+        return S
 
-        cmd="*"+chi+"*"+cosa_cmd+"*"+dove+"##"
+    def selectMenu(self,nome,scelte,selezionato):
+        '''scelte deve essere un dizionario {chi:nomepagina}'''
+        S='\n'
+        S+="\n<!-- Inizio Menu di  selezione -->"
+        S+='\n <div class="ui-field-contain">'
+        S+='\n <select name="%s" id="%s">' % (nome,self.urllib.quote(nome))
+        for x in scelte.keys():
+            sel=""
+            if scelte[x]==selezionato: 
+                sel='selected="selected"'
+            S+='\n         <option value="%s" %s>%s</option>' % (x,sel,scelte[x])
+        
+        S+='\n </select> \n </div> \n  <!-- Fine menu di selezione -->'
 
-        print cmd
-        print gateway.sendcmd(cmd)
+        return S
+
+    def tabsMenu(self,scelte):
+        S='\n'
+        S+='\n <!-- Inizio Tabs Menu -->'
+        S+='\n <div data-role="tabs">'
+        S+='\n <div data-role="navbar">'
+        S+='\n <ul>'
+        for x in scelte:
+            S+='\n <li><a href="#%s" data-theme="a" data-ajax="false">%s</a></li>' % (self.urllib.quote(x),x)
+        S+='\n </ul> \n</div> \n <!-- Fine Tabs menu --> \n'
+        
+        return S
+
+    def openTab(self,nome):
+        S='\n'
+        S+='\n <!-- Inizio Tab %s -->' % (nome)
+        S+= '\n <div id="%s" class="ui-content" style="padding:0">' % (self.urllib.quote(nome))
+        return S
+    
+    def closeTab(self,nome):
+        S='\n </div>'
+        S+='<!-- Fine  Tab %s -->' % (nome)
+        return S
+
+    
+    def openCollapsibleSet(self):
+        S='\n <!-- Inizio Collapsible Set -->'
+        S+='\n <div data-role="collapsible-set" data-theme="a" data-content-theme="a">'
+        return S
+
+    def closeCollapsibleSet(self):
+        S='\n </div> <!-- Chiuso Collapsible Set -->'
+        return S
+
+    def openCollapsible(self,nome):
+        S='\n <!-- Inizio Collapsible -->'
+        S+='\n <div data-role="collapsible">'
+        S+='\n <h3> %s </h3>' % (nome)
+        return S
+
+    def closeCollapsible(self):
+        S='\n </div> <!-- Chiuso Collapsible -->'
+        return S
+
+    def openControlGroup(self):
+        S='\n <!-- Inizio ControlGroup -->'
+        S+='\n <div data-role="controlgroup" data-type="horizontal">' 
+        return S
+
+    def closeControlGroup(self):
+        S='\n </div> <!-- Chiuso ControlGroup -->'
+        return S
+
+    def button(self,nome,value,style=""):
+        S='\n <button class="ui-btn ui-btn-inline"  value="%s" %s>%s</button>' % (value,style,nome)
+        return S
 
 
-cherrypy.quickstart(StartServer(), config="web.conf")

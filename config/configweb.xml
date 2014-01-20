@@ -1,52 +1,45 @@
 <?xml version="1.0" ?>
-<root>
-<Pagina txt="illuminazione" chi="1">
-    <Sezione txt="ufficio">
-	<Punto txt="Scrivania" dove="78">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-	</Punto>	    
-        <Punto txt="Corridoio" dove="74">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-        <Punto txt="Scala" dove="77">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-    </Sezione>
-    <Sezione txt="mansarda">
-        <Punto txt="Luce SX" dove="73">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-        <Punto txt="Luce Centro" dove="72">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-        <Punto txt="Luce DX" dove="71">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-    </Sezione>
+<ROOT>
+<PAGINA txt="illuminazione" chi="1">-->
+    <TAB txt="Piano Terra">    
+        <GRUPPO txt="ufficio">
+	    <PUNTO>
+                <PULSANTE cod="null">SCRIVANIA</PULSANTE>    
+                <PULSANTE cod="*1*1*78##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*78##">OFF</PULSANTE>
+	    </PUNTO>	    
+            <PUNTO>
+                <PULSANTE cod="null">CORRIDOIO</PULSANTE>    
+                <PULSANTE cod="*1*1*74##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*74##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO>
+                <PULSANTE cod="null">SCALA</PULSANTE>    
+                <PULSANTE cod="*1*1*77##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*77##">OFF</PULSANTE>
+            </PUNTO>
+        </GRUPPO>
+    </TAB>
+    <TAB txt="Piano Primo">
+        <GRUPPO txt="mansarda primo">
+            <PUNTO>
+                <PULSANTE cod="null">LUCE CENTRO</PULSANTE>    
+                <PULSANTE cod="*1*1*73##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*73##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO>
+                <PULSANTE cod="null">LUCE SX</PULSANTE>    
+                <PULSANTE cod="*1*1*72##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*72##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO>
+                <PULSANTE cod="null">LUCE DX</PULSANTE>    
+                <PULSANTE cod="*1*1*71##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*71##">OFF</PULSANTE>
+            </PUNTO>
+        </GRUPPO>
+    </TAB>
 
+</PAGINA>
 
-</Pagina>
-
-
-<Pagina txt="riscaldamento" chi="3">
-    <Sezione txt="soggiorno">
-        <Punto txt="Dietro divano" dove="22">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-        <Punto txt="Tvo" dove="32">
-	    <Comando>ON</Comando>
-	    <Comando>OFF</Comando>
-        </Punto>
-    </Sezione>
-</Pagina>
-
-
-
-</root>
+</ROOT>
