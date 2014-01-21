@@ -38,26 +38,36 @@ class MyWebJQMobile:
                        $.post('/request', com  );
                        return false;
                         });
+
+            //cambio di pagina
+            $("select").change(function( eventObject ) {
+                    page=$(this).val()
+                    $(":mobile-pagecontainer").pagecontainer("change","#"+page);
+                    });
+                    
+    
             });
+
         </script>
         </head>
         <body>
         '''
+    def closeHTML(self):
+        return "\n </body> \n </html>" 
 
     def openPage(self,nomepagina,header=""):
         S='\n'
         S+='\n <!-- Inizio Pagina %s -->' % (nomepagina)
-        S+='\n <div data-role="page" id=%s' % (self.urllib.quote(nomepagina))
+        S+='\n <div data-role="page" id="%s" >' % (self.urllib.quote(nomepagina))
         
         if header!="":
             S+='\n <!-- Inizio Header pagina %s -->' % (nomepagina)
             S+='\n <div data-role="header">'
             S+='\n %s' % (header)
-            S+='\n <\div>  <!-- fine header-->'
+            S+='\n </div>  <!-- fine header-->'
         
         S+='\n <!-- Inizio contenuto pagina %s -->' % (nomepagina)
         S+='\n <div role="main" class="ui-content">'
-
         return S
 
     def closePage(self,nomepagina,footer=""):
@@ -84,13 +94,12 @@ class MyWebJQMobile:
             sel=""
             if scelte[x]==selezionato: 
                 sel='selected="selected"'
-            S+='\n         <option value="%s" %s>%s</option>' % (x,sel,scelte[x])
+            S+='\n         <option value="%s" %s>%s</option>' % (self.urllib.quote(scelte[x]),sel,scelte[x])
         
         S+='\n </select> \n </div> \n  <!-- Fine menu di selezione -->'
-
         return S
 
-    def tabsMenu(self,scelte):
+    def openTabsMenu(self,scelte):
         S='\n'
         S+='\n <!-- Inizio Tabs Menu -->'
         S+='\n <div data-role="tabs">'
@@ -100,6 +109,12 @@ class MyWebJQMobile:
             S+='\n <li><a href="#%s" data-theme="a" data-ajax="false">%s</a></li>' % (self.urllib.quote(x),x)
         S+='\n </ul> \n</div> \n <!-- Fine Tabs menu --> \n'
         
+        return S
+
+
+    def closeTabsMenu(self):
+        S='\n </div>'
+        S+='<!-- Fine  Tabs menu %s -->' 
         return S
 
     def openTab(self,nome):
@@ -141,6 +156,48 @@ class MyWebJQMobile:
     def closeControlGroup(self):
         S='\n </div> <!-- Chiuso ControlGroup -->'
         return S
+
+
+    def openListView(self):
+        S='\n <!-- Inizio ListView -->'
+        S+='\n <ul data-role="listview">' 
+        return S
+
+    def closeListView(self):
+        S='\n </ul> <!-- Chiuso ListView -->'
+        return S
+
+
+    def openList(self):
+        S='\n <!-- Inizio List -->'
+        S+='\n <li class="ui-field-contain">' 
+        return S
+
+    def closeList(self):
+        S='\n </li> <!-- Chiuso List -->'
+        return S
+
+
+    def openGrid(self,tipo):
+        S='\n <!-- Inizio Grid -->'
+        S+='\n <div class="ui-grid-%s">' % (tipo) 
+        return S
+
+    def closeGrid(self):
+        S='\n </div> <!-- Chiuso grid -->'
+        return S
+
+
+    def openGridBlock(self,tipo,stile=""):
+        S='\n <!-- Inizio GridBlock -->'
+        S+='\n <div class="ui-block-%s" %s>' % (tipo,stile) 
+        return S
+
+    def closeGridBlock(self):
+        S='\n </div> <!-- Chiuso gridBlock -->'
+        return S
+
+
 
     def button(self,nome,value,style=""):
         S='\n <button class="ui-btn ui-btn-inline"  value="%s" %s>%s</button>' % (value,style,nome)

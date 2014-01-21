@@ -57,13 +57,13 @@ class StartServer:
             S+=G.selectMenu("select_page",dict_pagine,nomepagina)
 
             #inserire qui verifica tipo pagina
-            if chi=="1":  #illuminazione
+            if True: #per ora resta tutto uguale 
                 
                 #Menu Tabs
                 tabs=list()
                 for tab in pagina.iter("TAB"):
                     tabs.append(tab.attrib["txt"])
-                S+=G.tabsMenu(tabs)
+                S+=G.openTabsMenu(tabs)
 
                 #Ciclo tab
                 for tab in pagina.iter("TAB"):
@@ -77,11 +77,28 @@ class StartServer:
                         nomegruppo=gruppo.attrib["txt"]
                         S+=G.openCollapsible(nomegruppo)
                         
-                        for punto in gruppo.iter("PUNTO"):
-                            #dove=punto.attrib["dove"]
-                            
-                            S+=G.openControlGroup()
+                        S+=G.openListView()
 
+                        for punto in gruppo.iter("PUNTO"):
+                            nomepunto=punto.attrib["txt"]
+                            
+                            statopunto="on"
+                            
+                            S+=G.openList()
+                           
+                            S+=G.openGrid("a")
+                            
+                            S+=G.openGridBlock("a","style='width:30%'")
+                            S+="<h3>%s</h3><p>%s</p>" % (nomepunto,statopunto)
+                            S+=G.closeGridBlock()
+
+                            S+=G.openGridBlock("b","style='width:70%'")
+                            
+                            num=0
+                            for pulsante in punto.iter("PULSANTE"):
+                                num+=1
+                            perc=str(100/num-3)+"%"
+                            
                             for pulsante in punto.iter("PULSANTE"):
                                 #il valore del pulsante deve essere 
                                 #un dizionario codificato in stringa
@@ -89,18 +106,17 @@ class StartServer:
                                 nomepulsante=pulsante.text
                                 cod=pulsante.attrib["cod"]
                                
-                                #invoco un metodo per generare il codice pulsante
                                 codice=urllib.quote(cod)
-
-                                if cod=="null":
-                                    stile="style='width:80px'"
-                                else:
-                                    stile="style='width:30px'"
-
+                                stile="style='width:%s'" % (perc)
                                 S+=G.button(nomepulsante,codice,stile)    
-                            
-                            S+=G.closeControlGroup()
-                            
+                                    
+                            S+=G.closeGridBlock()
+
+                            S+=G.closeGrid() 
+                            S+=G.closeList()
+                        
+                        S+=G.closeListView()
+                        
                         S+=G.closeCollapsible()
 
 
@@ -108,8 +124,12 @@ class StartServer:
 
                     S+=G.closeTab(nometab)
         
+                S+=G.closeTabsMenu()
+            
             S+=G.closePage(nomepagina)
         
+        S+=G.closeHTML()
+
         #invio tutto al server
         yield S
     
@@ -120,6 +140,8 @@ class StartServer:
         cmd=urllib.unquote(val)
         print cmd
         print gateway.sendcmd(cmd)
+
+
 
 
 cherrypy.quickstart(StartServer(), config="lib/web.conf")

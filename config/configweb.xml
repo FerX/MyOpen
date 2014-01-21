@@ -1,20 +1,17 @@
 <?xml version="1.0" ?>
 <ROOT>
-<PAGINA txt="illuminazione" chi="1">-->
+<PAGINA txt="illuminazione" chi="1">
     <TAB txt="Piano Terra">    
         <GRUPPO txt="ufficio">
-	    <PUNTO>
-                <PULSANTE cod="null">SCRIVANIA</PULSANTE>    
+	    <PUNTO txt="Scrivania">
                 <PULSANTE cod="*1*1*78##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*78##">OFF</PULSANTE>
 	    </PUNTO>	    
-            <PUNTO>
-                <PULSANTE cod="null">CORRIDOIO</PULSANTE>    
+            <PUNTO txt="Corridoio">
                 <PULSANTE cod="*1*1*74##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*74##">OFF</PULSANTE>
             </PUNTO>
-            <PUNTO>
-                <PULSANTE cod="null">SCALA</PULSANTE>    
+            <PUNTO txt="Scala">
                 <PULSANTE cod="*1*1*77##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*77##">OFF</PULSANTE>
             </PUNTO>
@@ -22,24 +19,23 @@
     </TAB>
     <TAB txt="Piano Primo">
         <GRUPPO txt="mansarda primo">
-            <PUNTO>
-                <PULSANTE cod="null">LUCE CENTRO</PULSANTE>    
+            <PUNTO txt="Luce Centro">
                 <PULSANTE cod="*1*1*73##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*73##">OFF</PULSANTE>
             </PUNTO>
-            <PUNTO>
-                <PULSANTE cod="null">LUCE SX</PULSANTE>    
+            <PUNTO txt="Luce SX">
                 <PULSANTE cod="*1*1*72##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*72##">OFF</PULSANTE>
             </PUNTO>
-            <PUNTO>
-                <PULSANTE cod="null">LUCE DX</PULSANTE>    
+            <PUNTO txt="Luce DX">
                 <PULSANTE cod="*1*1*71##">ON</PULSANTE>
                 <PULSANTE cod="*1*0*71##">OFF</PULSANTE>
             </PUNTO>
         </GRUPPO>
     </TAB>
 
+</PAGINA>
+<PAGINA txt="pagina2" chi="3">
 </PAGINA>
 
 </ROOT>
