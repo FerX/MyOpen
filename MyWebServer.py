@@ -47,15 +47,16 @@ class StartServer:
         for selpag in config_xml.iter("PAGINA"):
             dict_pagine[selpag.attrib["chi"]]=selpag.attrib["txt"]
        
+        
         #ciclo per la pagina
         for pagina in config_xml.iter("PAGINA"):
             nomepagina=pagina.attrib["txt"]
             chi=pagina.attrib["chi"]
-            S+=G.openPage(nomepagina)
-       
-            #genero menu per seleziona pagina
-            S+=G.selectMenu("select_page",dict_pagine,nomepagina)
+            header_pagina=G.generaHeader(nomepagina,dict_pagine)
 
+            S+=G.openPage(nomepagina,header_pagina)
+             
+            
             #inserire qui verifica tipo pagina
             if True: #per ora resta tutto uguale 
                 
@@ -82,23 +83,22 @@ class StartServer:
                         for punto in gruppo.iter("PUNTO"):
                             nomepunto=punto.attrib["txt"]
                             
-                            statopunto="on"
+                            #predisposizione commento 
+                            notapunto=""
                             
                             S+=G.openList()
                            
                             S+=G.openGrid("a")
                             
-                            S+=G.openGridBlock("a","style='width:30%'")
-                            S+="<h3>%s</h3><p>%s</p>" % (nomepunto,statopunto)
+                            S+=G.openGridBlock("a","style='width:50%'")
+                            S+="<h3>%s</h3><p>%s</p>" % (nomepunto,notapunto)
                             S+=G.closeGridBlock()
 
-                            S+=G.openGridBlock("b","style='width:70%'")
+                            S+=G.openGridBlock("b","style='width:50%'")
                             
-                            num=0
-                            for pulsante in punto.iter("PULSANTE"):
-                                num+=1
-                            perc=str(100/num-3)+"%"
                             
+                            S+=G.openRadio()
+
                             for pulsante in punto.iter("PULSANTE"):
                                 #il valore del pulsante deve essere 
                                 #un dizionario codificato in stringa
@@ -107,9 +107,10 @@ class StartServer:
                                 cod=pulsante.attrib["cod"]
                                
                                 codice=urllib.quote(cod)
-                                stile="style='width:%s'" % (perc)
-                                S+=G.button(nomepulsante,codice,stile)    
+                                stile=""
+                                S+=G.radioButton(nomepulsante,codice,stile)    
                                     
+                            S+=G.closeRadio()
                             S+=G.closeGridBlock()
 
                             S+=G.closeGrid() 

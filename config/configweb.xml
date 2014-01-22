@@ -35,7 +35,40 @@
     </TAB>
 
 </PAGINA>
-<PAGINA txt="pagina2" chi="3">
+<PAGINA txt="illuminazione2" chi="12">
+    <TAB txt="Piano Terra">    
+        <GRUPPO txt="ufficio">
+	    <PUNTO txt="Scrivania">
+                <PULSANTE cod="*1*1*78##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*78##">OFF</PULSANTE>
+	    </PUNTO>	    
+            <PUNTO txt="Corridoio">
+                <PULSANTE cod="*1*1*74##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*74##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO txt="Scala">
+                <PULSANTE cod="*1*1*77##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*77##">OFF</PULSANTE>
+            </PUNTO>
+        </GRUPPO>
+    </TAB>
+    <TAB txt="Piano Primo">
+        <GRUPPO txt="mansarda primo">
+            <PUNTO txt="Luce Centro">
+                <PULSANTE cod="*1*1*73##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*73##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO txt="Luce SX">
+                <PULSANTE cod="*1*1*72##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*72##">OFF</PULSANTE>
+            </PUNTO>
+            <PUNTO txt="Luce DX">
+                <PULSANTE cod="*1*1*71##">ON</PULSANTE>
+                <PULSANTE cod="*1*0*71##">OFF</PULSANTE>
+            </PUNTO>
+        </GRUPPO>
+    </TAB>
+
 </PAGINA>
 
 </ROOT>

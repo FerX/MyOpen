@@ -33,7 +33,8 @@ class MyWebJQMobile:
             //document.ontouchmove = function(event){ event.preventDefault(); };
             //move beyond the address  bar to hide ;
             //window.scrollTo(0, 1);
-            $("button").click(function( eventObject ) {
+            //:button select all button and input element
+            $("input, button").click(function( eventObject ) {
                        var com  = $( this );
                        $.post('/request', com  );
                        return false;
@@ -58,7 +59,7 @@ class MyWebJQMobile:
     def openPage(self,nomepagina,header=""):
         S='\n'
         S+='\n <!-- Inizio Pagina %s -->' % (nomepagina)
-        S+='\n <div data-role="page" id="%s" >' % (self.urllib.quote(nomepagina))
+        S+='\n <div data-role="page" id="%s" style="max-width:800px">' % (self.urllib.quote(nomepagina))
         
         if header!="":
             S+='\n <!-- Inizio Header pagina %s -->' % (nomepagina)
@@ -67,7 +68,7 @@ class MyWebJQMobile:
             S+='\n </div>  <!-- fine header-->'
         
         S+='\n <!-- Inizio contenuto pagina %s -->' % (nomepagina)
-        S+='\n <div role="main" class="ui-content">'
+        S+='\n <div role="main" class="ui-content" style="padding:1px;">'
         return S
 
     def closePage(self,nomepagina,footer=""):
@@ -106,7 +107,7 @@ class MyWebJQMobile:
         S+='\n <div data-role="navbar">'
         S+='\n <ul>'
         for x in scelte:
-            S+='\n <li><a href="#%s" data-theme="a" data-ajax="false">%s</a></li>' % (self.urllib.quote(x),x)
+            S+='\n <li><a href="#%s" data-theme="a" data-ajax="false" >%s</a></li>' % (self.urllib.quote(x),x)
         S+='\n </ul> \n</div> \n <!-- Fine Tabs menu --> \n'
         
         return S
@@ -197,10 +198,47 @@ class MyWebJQMobile:
         S='\n </div> <!-- Chiuso gridBlock -->'
         return S
 
-
-
-    def button(self,nome,value,style=""):
-        S='\n <button class="ui-btn ui-btn-inline"  value="%s" %s>%s</button>' % (value,style,nome)
+    
+    def openRadio(self):
+        S='\n <!-- Inizio Radio Button -->'
+        S='\n <form>'
+        S+='\n <fieldset data-role="controlgroup" data-type="horizontal">' 
         return S
 
+    def closeRadio(self):
+        S='\n </fielset> \n </form> <!-- Chiuso Radio Button -->'
+        return S
+
+    def radioButton(self,nome,value,style=""):
+        S='\n <input type="radio" name="radio-choice" id="%s"  value="%s" %s>' % (nome,value,style)
+        S+='\n <label for="%s">%s</label>' % (nome,nome)
+        return S
+    
+    
+    def button(self,nome,value,style=""):
+        S='\n <button class="ui-btn ui-btn-inline "  value="%s" %s>%s</button>' % (value,style,nome)
+        return S
+
+    def generaHeader(self,titolo,scelte):
+        S="\n <h1>%s</h1>" % (titolo)
+        idpop="pop_"+self.urllib.quote(titolo)
+        
+        S+="""<a href='#"""
+        S+=idpop
+        S+="""' data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-bars ui-btn-icon-left ui-btn-a" data-transition="pop">Viste</a>
+        """
+        S+="""\n<div data-role="popup" id='"""
+        S+=idpop
+        S+="""'data-theme="a">
+            <ul data-role="listview" datra-inset="true" style="min-width:210px;">"""
+        
+        for x in scelte.keys():
+            S+='\n <li><a href="#%s">%s</a></li>' % (self.urllib.quote(scelte[x]),scelte[x])
+
+        S+="""</ul>
+        </div><!-- /collapsible -->
+        """
+
+
+        return S
 
