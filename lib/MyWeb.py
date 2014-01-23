@@ -17,8 +17,7 @@ class MyWebJQMobile:
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0;" />
         <meta name="viewport" content="width=device-width"/>
         <meta name="apple-mobile-web-app-capable" content="yes" />
-        <title>
-        </title>
+        <title></title>
         <link rel="stylesheet" href="jquery/jquery.mobile-1.4.0.min.css" />
         <style>
             /* App custom styles */
@@ -29,17 +28,28 @@ class MyWebJQMobile:
         </script>
         <script type="text/javascript">
         $(function() {
-            //stop the page from doing a stretch from the top when dragged ;
-            //document.ontouchmove = function(event){ event.preventDefault(); };
-            //move beyond the address  bar to hide ;
-            //window.scrollTo(0, 1);
             //:button select all button and input element
-            $("input, button").click(function( eventObject ) {
+            $("input.noconferma, button.noconferma").click(function( eventObject ) {
                        var com  = $( this );
                        $.post('/request', com  );
+                       $( this ).prop("checked",false);
                        return false;
                         });
 
+            $("input.chiediconferma, button.chiediconferma").click(function( eventObject ) {
+                       var com  = $( this );
+                       var sino = confirm('sei sicuro ?' );
+                       if (sino)
+                       {
+                       $.post('/request', com  );
+                       }else{
+                       //tolgo evidenzazione
+                       $( this ).prop("checked",false);
+                       }
+                       return false;
+                        });
+            
+            
             //cambio di pagina
             $("select").change(function( eventObject ) {
                     page=$(this).val()
@@ -100,14 +110,18 @@ class MyWebJQMobile:
         S+='\n </select> \n </div> \n  <!-- Fine menu di selezione -->'
         return S
 
-    def openTabsMenu(self,scelte):
+    def openTabsMenu(self,scelte,tab_select=""):
         S='\n'
         S+='\n <!-- Inizio Tabs Menu -->'
         S+='\n <div data-role="tabs">'
         S+='\n <div data-role="navbar">'
         S+='\n <ul>'
         for x in scelte:
-            S+='\n <li><a href="#%s" data-theme="a" data-ajax="false" >%s</a></li>' % (self.urllib.quote(x),x)
+            sel=""
+            if x==tab_select:
+                sel='class="ui-btn-active"'
+            
+            S+='\n <li><a href="#%s" data-theme="a" data-ajax="false" %s >%s</a></li>' % (self.urllib.quote(x),sel,x)
         S+='\n </ul> \n</div> \n <!-- Fine Tabs menu --> \n'
         
         return S
@@ -139,9 +153,9 @@ class MyWebJQMobile:
         S='\n </div> <!-- Chiuso Collapsible Set -->'
         return S
 
-    def openCollapsible(self,nome):
+    def openCollapsible(self,nome,option=""):
         S='\n <!-- Inizio Collapsible -->'
-        S+='\n <div data-role="collapsible">'
+        S+='\n <div data-role="collapsible" %s>' % (option)
         S+='\n <h3> %s </h3>' % (nome)
         return S
 
@@ -225,7 +239,7 @@ class MyWebJQMobile:
         
         S+="""<a href='#"""
         S+=idpop
-        S+="""' data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-bars ui-btn-icon-left ui-btn-a" data-transition="pop">Viste</a>
+        S+="""' data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-bars ui-btn-icon-left ui-btn-a" data-transition="pop">Men&ugrave;</a>
         """
         S+="""\n<div data-role="popup" id='"""
         S+=idpop

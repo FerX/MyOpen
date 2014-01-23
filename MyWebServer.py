@@ -64,7 +64,10 @@ class StartServer:
                 tabs=list()
                 for tab in pagina.iter("TAB"):
                     tabs.append(tab.attrib["txt"])
-                S+=G.openTabsMenu(tabs)
+                
+                #evidenzio il primo
+                tab_select=tabs[0]
+                S+=G.openTabsMenu(tabs,tab_select)
 
                 #Ciclo tab
                 for tab in pagina.iter("TAB"):
@@ -73,10 +76,18 @@ class StartServer:
                 
                     #gruppo collapsable
                     S+=G.openCollapsibleSet()
-
+                
                     for gruppo in tab.iter("GRUPPO"):
                         nomegruppo=gruppo.attrib["txt"]
-                        S+=G.openCollapsible(nomegruppo)
+                        
+                        opzione=""
+                        if "aperto" in  gruppo.keys():        
+                            aperto=gruppo.attrib["aperto"]
+                            if aperto.upper()=="TRUE":
+                                opzione='data-collapsed="false"'
+
+
+                        S+=G.openCollapsible(nomegruppo,opzione)
                         
                         S+=G.openListView()
 
@@ -96,18 +107,20 @@ class StartServer:
 
                             S+=G.openGridBlock("b","style='width:50%'")
                             
-                            
                             S+=G.openRadio()
 
                             for pulsante in punto.iter("PULSANTE"):
-                                #il valore del pulsante deve essere 
-                                #un dizionario codificato in stringa
-                                #chi - dove - cosa
                                 nomepulsante=pulsante.text
                                 cod=pulsante.attrib["cod"]
-                               
+                        
+                            
+                                stile='class="noconferma"'
+                                if "chiediconferma" in pulsante.keys():
+                                    chiediconferma=pulsante.attrib["chiediconferma"]
+                                    if chiediconferma.upper()=="TRUE":
+                                        stile='class="chiediconferma"'
+                                
                                 codice=urllib.quote(cod)
-                                stile=""
                                 S+=G.radioButton(nomepulsante,codice,stile)    
                                     
                             S+=G.closeRadio()
@@ -145,4 +158,4 @@ class StartServer:
 
 
 
-cherrypy.quickstart(StartServer(), config="lib/web.conf")
+cherrypy.quickstart(StartServer(), config="./lib/web.conf")
