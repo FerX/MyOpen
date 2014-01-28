@@ -1,22 +1,27 @@
 #/usr/bin/python
+
 import os
 import signal
 import subprocess
 import time
 
+#absolute directory
+abs_dir=os.path.dirname(os.path.realpath(__file__))
+
 #MyServer.py
 #si occupa di avviare i server MyDaemon e MyWebServer
+#attualmente senza nessun argomento kill esistenti ed avvia nuovi
 
 #definisco variabili generali
 nohup="/usr/bin/nohup"
 python="/usr/bin/python"
-dirpid="log/"
+dirpid=abs_dir+"/log/"
 null=open('/dev/null', 'w')
 
-mymonitor="lib/MyMonitor.py"
+mymonitor=abs_dir+"/lib/MyMonitor.py"
 pid_mymonitor=dirpid+'MyMonitor.pid'
 
-mywebserver="lib/MyWebServer.py"
+mywebserver=abs_dir+"/lib/MyWebServer.py"
 pid_mywebserver=dirpid+'MyWebServer.pid'
 
 #fermo
