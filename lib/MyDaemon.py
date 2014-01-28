@@ -5,11 +5,13 @@
 # utilizza il db per leggere l'ultimo stato
 # e registrare se e cambiato
 
-from lib import MyOpen
+import MyOpen
 import sys
 import os
 
 mydir=os.getcwd()
+if mydir[-4:] == "/lib":
+    mydir=mydir[:-4]
 
 #leggi impostazioni da config e le mette in un dizionario
 conf=MyOpen.ReadConfig(mydir+"/config/config.cfg","MyDaemon").read()

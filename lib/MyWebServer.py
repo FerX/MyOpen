@@ -4,13 +4,17 @@ import cherrypy
 
 #importo il mio file dove definisco le var statiche
 from lxml import etree
-#import pickle
 import urllib
-from lib import MyOpen
-from lib import MyWeb
+import MyOpen
+import MyWeb
+import os
+
+mydir=os.getcwd()
+if mydir[-4:] == "/lib":
+    mydir=mydir[:-4]
 
 #leggi impostazioni da config e le mette in un dizionario
-conf=MyOpen.ReadConfig("config/config.cfg","MyDaemon").read()
+conf=MyOpen.ReadConfig(mydir+"/config/config.cfg","MyDaemon").read()
 
 #Connessione al gataway
 gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]))
@@ -28,7 +32,7 @@ class StartServer:
         S+=G.initHTML()
                 
         #lettura file xml configurazione
-        file_xml=open("config/configweb.xml").read()
+        file_xml=open(mydir+"/config/configweb.xml").read()
         config_xml=etree.fromstring(file_xml)
         
         #il primo tag nel file config <PAGINA>
@@ -94,20 +98,21 @@ class StartServer:
                         for punto in gruppo.iter("PUNTO"):
                             nomepunto=punto.attrib["txt"]
                             
-                            #predisposizione commento 
                             notapunto=""
+                            if "nota" in  punto.keys():        
+                                notapunto=punto.attrib["nota"]
                             
                             S+=G.openList()
                            
                             S+=G.openGrid("a")
                             
-                            S+=G.openGridBlock("a","style='width:50%'")
+                            S+=G.openGridBlock("a","style='width:40%'")
                             S+="<h3>%s</h3><p>%s</p>" % (nomepunto,notapunto)
                             S+=G.closeGridBlock()
 
-                            S+=G.openGridBlock("b","style='width:50%'")
+                            S+=G.openGridBlock("b","style='width:60%'")
                             
-                            S+=G.openRadio()
+                            #S+=G.openRadio()
 
                             for pulsante in punto.iter("PULSANTE"):
                                 nomepulsante=pulsante.text
@@ -115,15 +120,18 @@ class StartServer:
                         
                             
                                 stile='class="noconferma"'
+                                classe='noconferma'
                                 if "chiediconferma" in pulsante.keys():
                                     chiediconferma=pulsante.attrib["chiediconferma"]
                                     if chiediconferma.upper()=="TRUE":
                                         stile='class="chiediconferma"'
+                                        classe='chiediconferma'
                                 
                                 codice=urllib.quote(cod)
-                                S+=G.radioButton(nomepulsante,codice,stile)    
+                                #S+=G.radioButton(nomepulsante,codice,stile)    
+                                S+=G.button(nomepulsante,codice,classe=classe)    
                                     
-                            S+=G.closeRadio()
+                            #S+=G.closeRadio()
                             S+=G.closeGridBlock()
 
                             S+=G.closeGrid() 
@@ -145,7 +153,7 @@ class StartServer:
         S+=G.closeHTML()
 
         #invio tutto al server
-        yield S
+        return S
     
     @cherrypy.expose
     def request(self, **data):
@@ -153,9 +161,13 @@ class StartServer:
         #decodifico il dizionario
         cmd=urllib.unquote(val)
         print cmd
-        print gateway.sendcmd(cmd)
+        ret=gateway.sendcmd(cmd)
+        print ret
+        yield str(ret)
+
+#rende demone, ma non lo uso
+#cherrypy.process.plugins.Daemonizer(cherrypy.engine).subscribe()
+
+cherrypy.quickstart(StartServer(), config=mydir+"/lib/web.conf")
 
 
-
-
-cherrypy.quickstart(StartServer(), config="./lib/web.conf")
