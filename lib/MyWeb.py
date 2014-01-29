@@ -19,21 +19,19 @@ class MyWebJQMobile:
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <title></title>
         <link rel="stylesheet" href="jquery/jquery.mobile-1.4.0.min.css" />
+        <script src="jquery/jquery-1.9.1.min.js"></script>
+        <script src="jquery/jquery.mobile-1.4.0.min.js"></script>
         <style>
             /* App custom styles */
+        .ui-controlgroup-controls {width:100% !important;}
         </style>
-        <script src="jquery/jquery-1.9.1.min.js">
-        </script>
-        <script src="jquery/jquery.mobile-1.4.0.min.js">
-        </script>
         <script type="text/javascript">
         $(function() {
             //:button select all button and input element
             $("input.noconferma, button.noconferma").click(function( eventObject ) {
                        var com  = $( this );
-                       $.post('/request', com  );
-                       $( this ).prop("checked",false);
-                       return false;
+                       $.post('/request', com , function(data){ 
+                       alert(data)}  );
                         });
 
             $("input.chiediconferma, button.chiediconferma").click(function( eventObject ) {
@@ -46,7 +44,6 @@ class MyWebJQMobile:
                        //tolgo evidenzazione
                        $( this ).prop("checked",false);
                        }
-                       return false;
                         });
             
             
@@ -58,8 +55,11 @@ class MyWebJQMobile:
                     
     
             });
-
         </script>
+        
+
+        
+        
         </head>
         <body>
         '''
@@ -229,8 +229,8 @@ class MyWebJQMobile:
         return S
     
     
-    def button(self,nome,value,style=""):
-        S='\n <button class="ui-btn ui-btn-inline "  value="%s" %s>%s</button>' % (value,style,nome)
+    def button(self,nome,value,classe="",style=""):
+        S='\n <button class="ui-btn ui-btn-inline %s"  id="%s" value="%s" %s>%s</button>' % (classe,nome,value,style,nome)
         return S
 
     def generaHeader(self,titolo,scelte):
