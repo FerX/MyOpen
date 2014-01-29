@@ -9,21 +9,23 @@ import MyOpen
 import sys
 import os
 
-mydir=os.getcwd()
-if mydir[-4:] == "/lib":
-    mydir=mydir[:-4]
+
+abs_dir=os.path.dirname(os.path.realpath(__file__))
+
+if abs_dir[-4:] == "/lib":
+    abs_dir=abs_dir[:-4]
 
 #leggi impostazioni da config e le mette in un dizionario
-conf=MyOpen.ReadConfig(mydir+"/config/config.cfg","MyDaemon").read()
+conf=MyOpen.ReadConfig(abs_dir+"/config/config.cfg","MyMonitor").read()
 
 #Connessione al gataway
 gateway=MyOpen.Gateway(conf["gateway"],int(conf["port"]),"monitor")
 
 #connessione al database
-database=MyOpen.Db(mydir+"/log/"+conf["nomedb"])
+database=MyOpen.Db(abs_dir+"/log/"+conf["nomedb"])
 
 #connessione al parser
-parser=MyOpen.Parser(mydir=mydir)
+parser=MyOpen.Parser(mydir=abs_dir)
 
 while True:
     try:
