@@ -166,9 +166,21 @@ class StartServer:
         print ret
         yield str(ret)
 
-#rende demone, ma non lo uso
-#cherrypy.process.plugins.Daemonizer(cherrypy.engine).subscribe()
 
-cherrypy.quickstart(StartServer(), config=abs_dir+"/lib/web.conf")
+conf_cherry={ 'global':
+        {   'server.socket_host': "0.0.0.0",
+            'server.socket_port' :7777,
+            'server.thread_pool' :10
+            },
+        '/':
+        { 'tools.staticdir.root' : abs_dir+"/lib"},
+        '/jquery':
+        {   'tools.staticdir.on' : True,
+            'tools.staticdir.dir' : 'jquery'
+            }
+        }
+
+
+cherrypy.quickstart(StartServer(), config=conf_cherry)
 
 
