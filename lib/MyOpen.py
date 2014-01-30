@@ -314,11 +314,18 @@ class Parser:
     import re
     import sys
     import copy
+    import os
+    abs_dir=os.path.dirname(os.path.realpath(__file__))
+
+    if abs_dir[-4:] == "/lib":
+        abs_dir=abs_dir[:-4]
+
 
     def __init__(self,mydir=""):
-        if not mydir=="":
-            mydir=mydir+"/"
-        self.config=mydir+"config"
+        
+        self.config=self.abs_dir+"/config"
+        
+        
         self.who=""
         self.what=""
         self.where=""

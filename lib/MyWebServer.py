@@ -63,8 +63,10 @@ class StartServer:
              
             
             #inserire qui verifica tipo pagina
-            if True: #per ora resta tutto uguale 
-                
+            if chi=="L": #mostro log 
+               S+=G.viewLog()
+
+            else:    
                 #Menu Tabs
                 tabs=list()
                 for tab in pagina.iter("TAB"):

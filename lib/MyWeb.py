@@ -6,6 +6,18 @@ class MyWebJQMobile:
 
     import pickle
     import urllib
+    import MyOpen
+    import os
+    abs_dir=os.path.dirname(os.path.realpath(__file__))
+
+    if abs_dir[-4:] == "/lib":
+        abs_dir=abs_dir[:-4]
+
+    #leggi impostazioni da config e le mette in un dizionario
+    conf=MyOpen.ReadConfig(abs_dir+"/config/config.cfg","MyMonitor").read()
+
+    #connessione al database
+    database=MyOpen.Db(abs_dir+"/log/"+conf["nomedb"])
 
     def initHTML(self):
         #Genero il primo blocco di codice da inviiare al browser
@@ -256,3 +268,29 @@ class MyWebJQMobile:
 
         return S
 
+    def viewLog(self):
+        
+        database=self.MyOpen.Db(self.abs_dir+"/log/"+self.conf["nomedb"])
+        
+        row=database.readsql(30,1,True)
+        
+        S="\n <!-- View Log-->"
+        
+        for x in row:
+            S+='<div class="ui-grid-a"> \n'
+            S+='<div class="ui-block-a" style="width:35%; padding-right: 4px">'
+            S+='<div class="ui-bar ui-bar-a" style="height:20px">'
+            S+=x[1]
+            S+='</div></div>\n'
+            S+='<div class="ui-block-b" style="width:65%">'
+            S+='<div class="ui-bar ui-bar-a" style="height:20px">'
+            S+=x[4]
+            S+='</div></div>\n'
+            S+='</div>\n'
+            S+='<div class="ui-grid-solo"> \n'
+            S+='<div class="ui-block-a" >'
+            S+='<div class="ui-bar ui-bar-c" style="height:20px">'
+            S+=x[5]
+            S+='</div></div></div>\n'
+
+        return S
