@@ -11,15 +11,18 @@ import curses
 from lib import MyOpen
 import time
 import sys
+import os
+abs_dir=os.path.dirname(os.path.realpath(__file__))
+
+if abs_dir[-4:] == "/lib":
+    abs_dir=abs_dir[:-4]
 
 #leggi impostazioni da config e le mette in un dizionario
-conf=MyOpen.ReadConfig("config/config.cfg","MyDaemon").read()
+conf=MyOpen.ReadConfig(abs_dir+"/config/config.cfg","MyMonitor").read()
 
 #connessione al database
-database=MyOpen.Db("log/"+conf["nomedb"])
+database=MyOpen.Db(abs_dir+"/log/"+conf["nomedb"])
 
-#connessione al parser
-parser=MyOpen.Parser()
 
 #inizializzo gestore schermo
 S=curses.initscr()
@@ -39,45 +42,19 @@ sino_parsing=False
 curses.init_pair(2, curses.COLOR_GREEN, curses.COLOR_BLACK)
 curses.init_pair(3, curses.COLOR_BLUE, curses.COLOR_BLACK)
 
-def readsql(limit,offset):
-    sql="SELECT ID,TIME,WHO,WHE,COD FROM LOG ORDER BY ID DESC LIMIT "+str(limit)+" OFFSET "+str(offset)
-    database.cursor.execute(sql)
-    Sret=[]
-    conta=0
-    for r in database.cursor.fetchall():
-        id=r[0]
-        t=time.localtime(float(r[1]))
-        data=str(t[2]).rjust(2,"0")+"-"+str(t[1]).rjust(2,"0")+"-"+str(t[0])[2:]
-        ora=str(t[3]).rjust(2,"0")+":"+str(t[4]).rjust(2,"0")+":"+str(t[5]).rjust(2,"0")
-        stime=data+" "+ora
-        who=r[2]
-        whe=r[3]
-        cod=r[4]
-        global sino_parsing
-        if sino_parsing:
-            pars=parser.parsing(cod)
-        else:
-            pars=""
-        Sret.append([str(id),stime,str(who),str(whe),cod,str(pars)])
-        conta+=1
-    global fine
-    fine=False
-    if conta<limit:
-        fine=True
-    return Sret
-
-def scrivi(pagina):
-    row=readsql(R,pagina)
+def scrivi(pagina,sino_parsing):
+    row=database.readsql(R,pagina,sino_parsing)
     riga=1
     for x in row:
         S.addstr(riga,1,x[1])
         S.addstr(riga,len(x[1])+2,x[4],curses.color_pair(3))
         tronca=C-(20+len(x[4]))
         S.addstr(riga,20+len(x[4]),x[5][:tronca])
-
         riga+=1
+    
     S.refresh()
-
+    #ritorno quante righe ho scritto
+    return len(row)
 
 def aiuto():
     H=curses.newwin(11,40,10,20)
@@ -95,7 +72,7 @@ pagina=0
 while True:
     S.erase()
     S.border()
-    scrivi(pagina)
+    numrighescritte=scrivi(pagina,sino_parsing)
     #num pagina
     S.addstr(R+1,C-20,"["+str(pagina)+":"+str(pagina+R)+"]",curses.color_pair(2))   
     #comandi
@@ -120,7 +97,7 @@ while True:
             break
         #pagina giu 
         elif c == 258 or c == 338:
-            if not fine:
+            if not numrighescritte<R:
                 pagina+=R
             break
         #attiva/disattiva parsing 

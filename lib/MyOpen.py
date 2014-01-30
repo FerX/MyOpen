@@ -274,6 +274,32 @@ class Db:
         self.close()
         self.sys.exit(msg) 
 
+    def readsql(self,limit,offset,sino_parsing=True):
+        sql="SELECT ID,TIME,WHO,WHE,COD FROM LOG ORDER BY ID DESC LIMIT "+str(limit)+" OFFSET "+str(offset)
+        self.cursor.execute(sql)
+        Sret=[]
+        conta=0
+        from MyOpen import Parser
+        import time
+        parser=Parser()
+        for r in self.cursor.fetchall():
+            id=r[0]
+            time.tzset()
+            t=time.localtime(float(r[1]))
+            data=str(t[2]).rjust(2,"0")+"-"+str(t[1]).rjust(2,"0")+"-"+str(t[0])[2:]
+            ora=str(t[3]).rjust(2,"0")+":"+str(t[4]).rjust(2,"0")+":"+str(t[5]).rjust(2,"0")
+            stime=data+" "+ora
+            who=r[2]
+            whe=r[3]
+            cod=r[4]
+            if sino_parsing:
+                
+                pars=parser.parsing(cod)
+            else:
+                pars=""
+            Sret.append([str(id),stime,str(who),str(whe),cod,str(pars)])
+            conta+=1
+        return Sret
 
 class Parser:
     """
